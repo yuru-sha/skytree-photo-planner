@@ -1,0 +1,19 @@
+{
+  "name": "@skytree-photo-planner/types",
+  "version": "0.1.0",
+  "description": "Shared type definitions for Skytree Photo Planner",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  },
+  "files": [
+    "dist"
+  ]
+}

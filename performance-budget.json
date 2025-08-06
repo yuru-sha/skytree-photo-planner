@@ -1,0 +1,70 @@
+{
+  "buildDate": "2025-08-05T04:47:33.106Z",
+  "budgets": {
+    "bundles": {
+      "main": {
+        "limit": 50,
+        "warning": 40,
+        "current": 32
+      },
+      "vendor": {
+        "limit": 60,
+        "warning": 50,
+        "current": 53
+      },
+      "admin": {
+        "limit": 30,
+        "warning": 25,
+        "current": 24
+      },
+      "map": {
+        "limit": 50,
+        "warning": 40,
+        "current": 47
+      },
+      "total": {
+        "limit": 200,
+        "warning": 160,
+        "current": 85
+      }
+    },
+    "metrics": {
+      "LCP": {
+        "good": 2500,
+        "needsImprovement": 4000
+      },
+      "FID": {
+        "good": 100,
+        "needsImprovement": 300
+      },
+      "CLS": {
+        "good": 0.1,
+        "needsImprovement": 0.25
+      },
+      "FCP": {
+        "good": 1800,
+        "needsImprovement": 3000
+      },
+      "TTI": {
+        "good": 3800,
+        "needsImprovement": 7300
+      }
+    },
+    "resources": {
+      "images": {
+        "limit": 500,
+        "warning": 400
+      },
+      "fonts": {
+        "limit": 100,
+        "warning": 80
+      },
+      "css": {
+        "limit": 50,
+        "warning": 40,
+        "current": 21
+      }
+    }
+  },
+  "status": "warning"
+}
