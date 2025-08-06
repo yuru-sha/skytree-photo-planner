@@ -294,7 +294,7 @@ export class PrismaCalendarRepository implements CalendarRepository {
         azimuthToSkytree: event.location.azimuthToSkytree,
         elevationToSkytree: event.location.elevationToSkytree,
         description: event.location.description,
-        notes: event.location.measurementNotes,
+        measurementNotes: event.location.measurementNotes,
         parkingInfo: event.location.parkingInfo,
         status: event.location.status,
         createdAt: event.location.createdAt,
