@@ -1,0 +1,40 @@
+# 開発用 Dockerfile - モノレポ構成（v0.3.0）
+FROM node:18-alpine
+
+# 必要なシステムパッケージをインストール（PostgreSQL 用）
+RUN apk add --no-cache \
+    postgresql-client \
+    python3 \
+    make \
+    g++ \
+    curl
+
+# 作業ディレクトリを設定
+WORKDIR /app
+
+# モノレポの package.json をコピー
+COPY package*.json ./
+
+# workspaces 設定をコピー
+COPY apps/client/package.json ./apps/client/
+COPY apps/server/package.json ./apps/server/
+COPY packages/*/package.json ./packages/*/
+
+# 依存関係をインストール（モノレポ対応）
+RUN npm ci
+
+# 全ソースコードをコピー
+COPY . .
+
+# 共有パッケージをビルド
+RUN npm run build:packages
+
+# ポートを公開（フロントエンド: 3001, バックエンド: 3000）
+EXPOSE 3000 3001
+
+# ヘルスチェック（バックエンド API）
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:3000/api/health || exit 1
+
+# デフォルトコマンド（モノレポ dev 環境）
+CMD ["npm", "run", "dev"]

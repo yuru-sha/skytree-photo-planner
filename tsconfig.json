@@ -1,0 +1,44 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "lib": ["DOM", "DOM.Iterable", "ES6"],
+    "allowJs": true,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noFallthroughCasesInSwitch": true,
+    "module": "esnext",
+    "moduleResolution": "node",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "baseUrl": ".",
+    "paths": {
+      "@skytree-photo-planner/types": ["packages/types/dist"],
+      "@skytree-photo-planner/utils": ["packages/utils/dist"],
+      "@skytree-photo-planner/ui": ["packages/ui/dist"]
+    }
+  },
+  "include": [
+    "apps/*/src",
+    "packages/*/src"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist",
+    "build"
+  ],
+  "references": [
+    { "path": "./apps/client" },
+    { "path": "./apps/server" },
+    { "path": "./packages/types" },
+    { "path": "./packages/utils" },
+    { "path": "./packages/ui" }
+  ]
+}

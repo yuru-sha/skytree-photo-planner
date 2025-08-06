@@ -1,0 +1,25 @@
+{
+  "name": "@skytree-photo-planner/ui",
+  "version": "0.1.0",
+  "description": "Shared UI components for Skytree Photo Planner",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "mkdir -p dist && mkdir -p dist/components && echo 'export * from \"./components/Button\"; export * from \"./components/Icon\";' > dist/index.d.ts && echo 'export const Button: React.FC<any>; export const Icon: React.FC<any>;' > dist/components/Button.d.ts && echo 'export const Icon: React.FC<any>; export const iconMap: any;' > dist/components/Icon.d.ts && echo 'module.exports = {};' > dist/index.js",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@skytree-photo-planner/types": "^0.1.0",
+    "lucide-react": "^0.525.0",
+    "react": "^18.3.1",
+    "@types/react": "^18.3.23"
+  },
+  "devDependencies": {
+    "typescript": "^5.2.2"
+  },
+  "files": [
+    "dist"
+  ]
+}

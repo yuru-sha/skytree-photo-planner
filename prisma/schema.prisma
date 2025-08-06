@@ -1,0 +1,145 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id               Int            @id @default(autoincrement())
+  username         String         @unique @db.VarChar(50)
+  email            String         @unique @db.VarChar(100)
+  passwordHash     String         @map("password_hash") @db.VarChar(255)
+  role             AdminRole      @default(admin)
+  failedLoginCount Int            @default(0) @map("failed_login_count")
+  lockedUntil      DateTime?      @map("locked_until") @db.Timestamptz(6)
+  lastLoginAt      DateTime?      @map("last_login_at") @db.Timestamptz(6)
+  isActive         Boolean        @default(true) @map("is_active")
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  refreshTokens    RefreshToken[]
+
+  @@index([username])
+  @@index([email])
+  @@index([isActive])
+  @@map("admins")
+}
+
+model RefreshToken {
+  id        Int      @id @default(autoincrement())
+  token     String   @unique @db.VarChar(1000)
+  adminId   Int      @map("admin_id")
+  expiresAt DateTime @map("expires_at") @db.Timestamptz(6)
+  isRevoked Boolean  @default(false) @map("is_revoked")
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+  
+  admin Admin @relation(fields: [adminId], references: [id], onDelete: Cascade)
+
+  @@index([token])
+  @@index([adminId])
+  @@index([expiresAt])
+  @@index([isRevoked])
+  @@map("refresh_tokens")
+}
+
+model Location {
+  id                 Int             @id @default(autoincrement())
+  name               String          @db.VarChar(100)
+  description        String?
+  latitude           Float
+  longitude          Float
+  elevation          Float?
+  distanceToSkytree  Float           @map("distance_to_skytree")
+  azimuthToSkytree   Float           @map("azimuth_to_skytree")
+  elevationToSkytree Float           @map("elevation_to_skytree")
+  accessInfo         String?         @map("access_info")
+  parkingInfo        String?         @map("parking_info")
+  prefecture         String          @db.VarChar(20)
+  status             LocationStatus  @default(active)
+  measurementNotes   String?         @map("measurement_notes")
+  createdAt          DateTime        @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt          DateTime        @updatedAt @map("updated_at") @db.Timestamptz(6)
+  events             LocationEvent[]
+
+  @@unique([latitude, longitude])
+  @@index([name])
+  @@index([distanceToSkytree])
+  @@index([status])
+  @@map("locations")
+}
+
+model LocationEvent {
+  id               Int            @id @default(autoincrement())
+  locationId       Int            @map("location_id")
+  eventDate        DateTime       @map("event_date") @db.Date
+  eventTime        DateTime       @map("event_time") @db.Timestamptz(6)
+  azimuth          Float
+  altitude         Float
+  qualityScore     Float          @map("quality_score")
+  moonPhase        Float?         @map("moon_phase")
+  moonIllumination Float?         @map("moon_illumination")
+  calculationYear  Int            @map("calculation_year")
+  eventType        EventType      @map("event_type")
+  accuracy         AccuracyLevel? @map("accuracy")
+  createdAt        DateTime       @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt        DateTime       @updatedAt @map("updated_at") @db.Timestamptz(6)
+  location         Location       @relation(fields: [locationId], references: [id], onDelete: Cascade)
+
+  @@unique([locationId, eventDate, eventType])
+  @@index([locationId])
+  @@index([eventDate])
+  @@index([calculationYear])
+  @@index([eventType])
+  @@map("location_events")
+}
+
+model SystemSetting {
+  id           Int           @id @default(autoincrement())
+  settingKey   String        @unique @map("setting_key") @db.VarChar(100)
+  settingType  SettingType   @map("setting_type")
+  numberValue  Float?   @map("number_value")
+  stringValue  String?  @map("string_value")
+  booleanValue Boolean? @map("boolean_value")
+  description  String?
+  category     String   @db.VarChar(50)
+  editable     Boolean  @default(true)
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz(6)
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz(6)
+
+  @@index([settingKey])
+  @@index([category])
+  @@map("system_settings")
+}
+
+enum LocationStatus {
+  active
+  restricted
+}
+
+enum AdminRole {
+  admin
+  super
+}
+
+enum EventType {
+  diamond_sunrise
+  diamond_sunset
+  pearl_moonrise
+  pearl_moonset
+}
+
+enum AccuracyLevel {
+  perfect
+  excellent
+  good
+  fair
+}
+
+enum SettingType {
+  string
+  number
+  boolean
+}
