@@ -80,8 +80,8 @@ temp/
 *.sln
 *.sw?
 
-# Claude Code settings
-.claude/settings.local.json
+# Claude Code
+.claude/
 
 # Skytree Photo Planner data (except structure)
 data/*
