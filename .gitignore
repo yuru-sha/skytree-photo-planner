@@ -87,4 +87,7 @@ data/*
 
 /generated/prisma
 
+# Local verification proof artifacts (not committed).
+artifacts/
+
 
