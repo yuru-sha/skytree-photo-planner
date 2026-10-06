@@ -63,7 +63,7 @@
 - **LocationService**: 地点管理ビジネスロジック（Repository パターン）
 - **AstronomicalCalculator**: 天体計算エンジン（Astronomy Engine）
 - **AuthServiceRefactored**: JWT 認証管理・アカウントロック
-- **EventCacheService**: イベントデータの事前計算と PostgreSQL キャッシュ
+- **EventCacheService**: イベントデータの事前計算と PostgreSQL キャッシュ。同じ年の再生成は advisory lock で直列化し、キャッシュ置換を単一トランザクションで処理
 - **QueueServiceRefactored**: BullMQ による非同期ジョブ管理
 - **DIContainer**: 依存性注入コンテナ
 

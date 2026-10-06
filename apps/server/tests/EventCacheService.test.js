@@ -88,16 +88,6 @@ describe("EventCacheService overlapping rebuilds", () => {
           }
           return { count: before - mockRows.length };
         }),
-        create: jest.fn(async ({ data }) => {
-          await Promise.resolve();
-          if (mockRows.some((row) => uniqueKey(row) === uniqueKey(data))) {
-            uniqueViolationCount += 1;
-            throw new Error("unique constraint violation");
-          }
-          const row = { ...data };
-          mockRows.push(row);
-          return row;
-        }),
         createMany: jest.fn(async ({ data }) => {
           const keys = data.map(uniqueKey);
           if (
@@ -171,5 +161,67 @@ describe("EventCacheService overlapping rebuilds", () => {
     expect(results.map((result) => result.success)).toEqual([true, true, true, true]);
     expect(mockRows).toHaveLength(2);
     expect(new Set(mockRows.map(uniqueKey)).size).toBe(2);
+  });
+  it("restores the old cache when a later insert batch fails", async () => {
+    const original = {
+      locationId: location.id,
+      eventDate: new Date("2026-01-01T09:00:00.000Z"),
+      eventTime: new Date("2026-01-01T06:00:00.000Z"),
+      azimuth: 80,
+      altitude: 5,
+      qualityScore: 0.6,
+      moonPhase: null,
+      moonIllumination: null,
+      calculationYear: 2026,
+      eventType: "diamond_sunrise",
+      accuracy: "good",
+    };
+    mockRows.push(original);
+    let insertBatch = 0;
+    const database = {
+      location: {
+        findUnique: jest.fn().mockResolvedValue(location),
+      },
+      locationEvent: {
+        deleteMany: jest.fn(async () => {
+          mockRows.splice(0, mockRows.length);
+          return { count: 1 };
+        }),
+        createMany: jest.fn(async ({ data }) => {
+          insertBatch += 1;
+          if (insertBatch === 2) throw new Error("insert failed");
+          mockRows.push(...data);
+          return { count: data.length };
+        }),
+      },
+    };
+    mockPrisma.$transaction = jest.fn(async (work) => {
+      const transactionRows = mockRows.map((row) => ({ ...row }));
+      const tx = {
+        ...database,
+        $queryRaw: jest.fn().mockResolvedValue([]),
+      };
+      try {
+        return await work(tx);
+      } catch (error) {
+        mockRows.splice(0, mockRows.length, ...transactionRows);
+        throw error;
+      }
+    });
+    Object.assign(mockPrisma, database);
+
+    const { EventCacheService } = require("../src/services/EventCacheService");
+    const events = Array.from({ length: 101 }, (_, index) => ({
+      ...makeEvent("sunrise"),
+      time: new Date(Date.UTC(2026, 0, index + 1, 6)),
+    }));
+    const service = new EventCacheService({
+      calculateLocationYearlyEvents: jest.fn().mockResolvedValue(events),
+    });
+
+    await expect(service.generateLocationCache(location.id, 2026)).rejects.toThrow(
+      "insert failed",
+    );
+    expect(mockRows).toEqual([original]);
   });
 });
