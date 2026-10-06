@@ -14,6 +14,7 @@
     "start:worker:dev": "ts-node src/worker.ts",
     "worker": "ts-node src/worker.ts",
     "typecheck": "tsc --noEmit",
+    "test": "jest --config jest.config.js --runInBand",
     "lint": "eslint src --ext .ts",
     "lint:fix": "eslint src --ext .ts --fix",
     "clean": "rm -rf dist"
