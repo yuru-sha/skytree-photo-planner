@@ -19,7 +19,7 @@ jobs:
         with:
           node-version: 26.10.0
           cache: npm
-      - run: npm install --package-lock-only
+      - run: npm install
       - run: npm run build:client
       - name: Commit generated lockfile and remove helper workflow
         run: |
