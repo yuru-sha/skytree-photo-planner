@@ -15,7 +15,6 @@
     "noUnusedLocals": false,
     "noUnusedParameters": false,
     "noFallthroughCasesInSwitch": false,
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"],
       "@skytree-photo-planner/types": ["../../packages/types/dist"],

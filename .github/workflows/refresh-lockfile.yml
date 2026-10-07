@@ -1,7 +1,7 @@
 name: Refresh dependency lockfile
 on:
   push:
-    branches: [chore/issue-28-vite-8]
+    branches: [chore/issue-29-typescript-7]
 permissions:
   contents: write
 jobs:
@@ -25,8 +25,8 @@ jobs:
           git diff --cached --quiet || git commit -m "chore: refresh package lockfile"
           git push
       - run: npm run build:packages
-      - run: npm run typecheck --workspace=apps/client
-      - run: npm run build:client
+      - run: npm run typecheck
+      - run: npm run build
       - name: Remove helper workflow
         run: |
           git rm .github/workflows/refresh-lockfile.yml
