@@ -168,7 +168,9 @@ export class DIContainer {
         const systemSettingsService = this.resolve("SystemSettingsService") as { initializePerformanceSettings?: () => Promise<void> };
         if (systemSettingsService && typeof systemSettingsService.initializePerformanceSettings === 'function') {
           systemSettingsService.initializePerformanceSettings().catch((error: unknown) => {
-            logger.warn("パフォーマンス設定初期化失敗", error);
+            logger.warn("パフォーマンス設定初期化失敗", {
+              error: error instanceof Error ? error.message : String(error),
+            });
           });
         }
       }

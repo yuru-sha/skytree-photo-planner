@@ -74,7 +74,7 @@ export class LocationController {
       });
     } catch (error) {
       logger.error("撮影地点詳細取得エラー", error, {
-        locationId: req.params.id,
+        locationId: Number.parseInt(req.params.id, 10),
       });
       res.status(500).json({
         success: false,
@@ -256,7 +256,7 @@ export class LocationController {
       });
     } catch (error) {
       logger.error("撮影地点更新エラー", error, {
-        locationId: req.params.id,
+        locationId: Number.parseInt(req.params.id, 10),
       });
       res.status(500).json({
         success: false,
@@ -291,7 +291,7 @@ export class LocationController {
       });
     } catch (error) {
       logger.error("撮影地点削除エラー", error, {
-        locationId: req.params.id,
+        locationId: Number.parseInt(req.params.id, 10),
       });
       res.status(500).json({
         success: false,

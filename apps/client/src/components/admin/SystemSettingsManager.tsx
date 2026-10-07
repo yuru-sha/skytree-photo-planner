@@ -196,7 +196,9 @@ const SystemSettingsManager: React.FC = () => {
         logger.debug('パフォーマンス設定をロード', { newSettings });
       }
     } catch (err) {
-      logger.warn('パフォーマンス設定の読み込みに失敗', err as Error);
+      logger.warn('パフォーマンス設定の読み込みに失敗', {
+        error: err instanceof Error ? err.message : String(err),
+      });
     }
   };
 
