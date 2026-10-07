@@ -1,5 +1,5 @@
 # 共通ベース Dockerfile（バックエンド API + ワーカー）
-FROM node:18-alpine AS base
+FROM node:26.10.0-alpine AS base
 
 # 必要なシステムパッケージをインストール
 RUN apk add --no-cache \
