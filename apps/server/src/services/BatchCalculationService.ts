@@ -1,8 +1,8 @@
 import { Location } from "@skytree-photo-planner/types";
 import { getComponentLogger, StructuredLogger } from "@skytree-photo-planner/utils";
-import { PrismaClientManager } from "../database/prisma";
-import { EventCacheService } from "./EventCacheService";
-import { SkytreeAstronomicalCalculator } from "./SkytreeAstronomicalCalculator";
+import { PrismaClientManager } from "../database/prisma.js";
+import { EventCacheService } from "./EventCacheService.js";
+import { SkytreeAstronomicalCalculator } from "./SkytreeAstronomicalCalculator.js";
 
 /**
  * バッチ計算サービス

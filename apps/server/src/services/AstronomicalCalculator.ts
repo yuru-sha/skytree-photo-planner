@@ -5,11 +5,11 @@ import {
   MoonPosition,
 } from "@skytree-photo-planner/types";
 import { getComponentLogger, timeUtils } from "@skytree-photo-planner/utils";
-import { CoordinateCalculator } from "./astronomical/CoordinateCalculator";
-import { CelestialPositionCalculator } from "./astronomical/CelestialPositionCalculator";
+import { CoordinateCalculator } from "./astronomical/CoordinateCalculator.js";
+import { CelestialPositionCalculator } from "./astronomical/CelestialPositionCalculator.js";
 
-import { SeasonCalculator } from "./astronomical/SeasonCalculator";
-import { SystemSettingsService } from "./SystemSettingsService";
+import { SeasonCalculator } from "./astronomical/SeasonCalculator.js";
+import { SystemSettingsService } from "./SystemSettingsService.js";
 
 // 既存のインターフェースをインポート
 export interface AstronomicalCalculator {

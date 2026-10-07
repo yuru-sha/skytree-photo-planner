@@ -1,8 +1,8 @@
 import { Router, Request, Response } from "express";
-import { DIContainer } from "../di/DIContainer";
-import { SystemSettingsController } from "../controllers/SystemSettingsController";
-import { SystemSettingsService } from "../services/SystemSettingsService";
-import { authenticateAdmin } from "../middleware/auth";
+import { DIContainer } from "../di/DIContainer.js";
+import { SystemSettingsController } from "../controllers/SystemSettingsController.js";
+import { SystemSettingsService } from "../services/SystemSettingsService.js";
+import { authenticateAdmin } from "../middleware/auth.js";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
 
 const logger = getComponentLogger("SystemSettingsRoutes");
