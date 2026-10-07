@@ -574,6 +574,7 @@ export class QueueService implements IQueueService {
         "calculate-location-events",
         jobData,
         {
+          jobId: `location-${locationId}-${startYear}-${endYear}`,
           priority: this.getPriority(priority),
           attempts: 3,
           backoff: {
