@@ -1,7 +1,7 @@
 name: Refresh dependency lockfile
 on:
   push:
-    branches: [chore/issue-26-react-router-7]
+    branches: [chore/issue-28-vite-8]
 permissions:
   contents: write
 jobs:
