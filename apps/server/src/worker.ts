@@ -16,6 +16,7 @@ import { DIContainer } from "./di/DIContainer.js";
 import { ServiceRegistry } from "./di/ServiceRegistry.js";
 import { QueueService } from "./services/interfaces/QueueService.js";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
+import { pathToFileURL } from "node:url";
 
 const logger = getComponentLogger("queue-worker");
 
