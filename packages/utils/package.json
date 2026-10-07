@@ -5,17 +5,17 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
-    "dev": "tsc --watch",
+    "build": "../../node_modules/@typescript/native/bin/tsc",
+    "dev": "../../node_modules/@typescript/native/bin/tsc --watch",
     "clean": "rm -rf dist",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "../../node_modules/@typescript/native/bin/tsc --noEmit"
   },
   "dependencies": {
     "@skytree-photo-planner/types": "^0.1.0",
     "pino": "^9.7.0"
   },
   "devDependencies": {
-    "typescript": "npm:@typescript/typescript6@^6.0.2"
+    "typescript": "^5.9.3"
   },
   "files": [
     "dist"

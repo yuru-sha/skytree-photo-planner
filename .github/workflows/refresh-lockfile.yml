@@ -1,0 +1,42 @@
+name: Refresh dependency lockfile
+on:
+  push:
+    branches: [fix/issue-61-typescript-compat-api]
+permissions:
+  contents: write
+jobs:
+  refresh-lockfile:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 26.10.0
+          cache: npm
+      - run: npm install
+      - name: Commit generated lockfile
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package-lock.json
+          git diff --cached --quiet || git commit -m "chore: refresh package lockfile"
+          git push
+      - name: Verify compilers
+        run: |
+          node node_modules/@typescript/native/bin/tsc --version
+          node node_modules/typescript/bin/tsc --version
+          test "$(node node_modules/@typescript/native/bin/tsc --version)" = "Version 7.0.2"
+      - run: npm run build:packages
+      - run: npm run typecheck
+      - run: npm run test
+      - run: npm run lint
+      - run: npm run build
+      - run: npm run check-circular
+      - name: Remove helper workflow
+        run: |
+          git rm .github/workflows/refresh-lockfile.yml
+          git commit -m "ci: remove dependency refresh helper"
+          git push

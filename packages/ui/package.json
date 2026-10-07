@@ -6,9 +6,9 @@
   "types": "dist/index.d.ts",
   "scripts": {
     "build": "mkdir -p dist && mkdir -p dist/components && echo 'export * from \"./components/Button\"; export * from \"./components/Icon\";' > dist/index.d.ts && echo 'export const Button: React.FC<any>; export const Icon: React.FC<any>;' > dist/components/Button.d.ts && echo 'export const Icon: React.FC<any>; export const iconMap: any;' > dist/components/Icon.d.ts && echo 'module.exports = {};' > dist/index.js",
-    "dev": "tsc --watch",
+    "dev": "../../node_modules/@typescript/native/bin/tsc --watch",
     "clean": "rm -rf dist",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "../../node_modules/@typescript/native/bin/tsc --noEmit"
   },
   "dependencies": {
     "@skytree-photo-planner/types": "^0.1.0",
@@ -17,7 +17,7 @@
     "@types/react": "^19.3.0"
   },
   "devDependencies": {
-    "typescript": "npm:@typescript/typescript6@^6.0.2"
+    "typescript": "^5.9.3"
   },
   "files": [
     "dist"
