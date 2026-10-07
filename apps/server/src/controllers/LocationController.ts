@@ -4,6 +4,9 @@ import { getComponentLogger } from "@skytree-photo-planner/utils";
 
 const logger = getComponentLogger("LocationController");
 
+const getRouteParam = (value: string | string[]): string =>
+  Array.isArray(value) ? (value[0] ?? "") : value;
+
 /**
  * リファクタリング後の LocationController
  * DI パターンを使用して依存関係を注入
@@ -42,7 +45,7 @@ export class LocationController {
    */
   async getLocation(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(getRouteParam(req.params.id));
       if (isNaN(id)) {
         res.status(400).json({
           success: false,
@@ -74,7 +77,7 @@ export class LocationController {
       });
     } catch (error) {
       logger.error("撮影地点詳細取得エラー", error, {
-        locationId: Number.parseInt(req.params.id, 10),
+        locationId: Number.parseInt(getRouteParam(req.params.id), 10),
       });
       res.status(500).json({
         success: false,
@@ -170,7 +173,7 @@ export class LocationController {
    */
   async updateLocation(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(getRouteParam(req.params.id));
       if (isNaN(id)) {
         res.status(400).json({
           success: false,
@@ -256,7 +259,7 @@ export class LocationController {
       });
     } catch (error) {
       logger.error("撮影地点更新エラー", error, {
-        locationId: Number.parseInt(req.params.id, 10),
+        locationId: Number.parseInt(getRouteParam(req.params.id), 10),
       });
       res.status(500).json({
         success: false,
@@ -271,7 +274,7 @@ export class LocationController {
    */
   async deleteLocation(req: Request, res: Response): Promise<void> {
     try {
-      const id = parseInt(req.params.id);
+      const id = parseInt(getRouteParam(req.params.id));
       if (isNaN(id)) {
         res.status(400).json({
           success: false,
@@ -291,7 +294,7 @@ export class LocationController {
       });
     } catch (error) {
       logger.error("撮影地点削除エラー", error, {
-        locationId: Number.parseInt(req.params.id, 10),
+        locationId: Number.parseInt(getRouteParam(req.params.id), 10),
       });
       res.status(500).json({
         success: false,
