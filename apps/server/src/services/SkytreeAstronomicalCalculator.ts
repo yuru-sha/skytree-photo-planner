@@ -12,17 +12,29 @@ import { SeasonCalculator } from "./astronomical/SeasonCalculator";
 import type { ISystemSettingsService } from "./interfaces/ISystemSettingsService";
 
 // スカイツリー用のインターフェース
+export type CalculationFailureMode = "best-effort" | "strict";
+
 export interface SkytreeAstronomicalCalculator {
-  calculateDiamondSkytree(date: Date, locations: LocationType[]): Promise<SkytreeEvent[]>;
-  calculatePearlSkytree(date: Date, locations: LocationType[]): Promise<SkytreeEvent[]>;
+  calculateDiamondSkytree(
+    date: Date,
+    locations: LocationType[],
+    failureMode?: CalculationFailureMode,
+  ): Promise<SkytreeEvent[]>;
+  calculatePearlSkytree(
+    date: Date,
+    locations: LocationType[],
+    failureMode?: CalculationFailureMode,
+  ): Promise<SkytreeEvent[]>;
   calculateMonthlyEvents(
     year: number,
     month: number,
     locations: LocationType[],
+    failureMode?: CalculationFailureMode,
   ): Promise<SkytreeEvent[]>;
   calculateLocationYearlyEvents(
     location: LocationType,
     year: number,
+    failureMode?: CalculationFailureMode,
   ): Promise<SkytreeEvent[]>;
   getSunPosition(
     date: Date,
@@ -64,7 +76,11 @@ export class SkytreeAstronomicalCalculatorImpl implements SkytreeAstronomicalCal
     this.skytreeAlignmentCalc = new SkytreeAlignmentCalculator(this.settingsService);
   }
 
-  async calculateDiamondSkytree(date: Date, locations: LocationType[]): Promise<SkytreeEvent[]> {
+  async calculateDiamondSkytree(
+    date: Date,
+    locations: LocationType[],
+    failureMode: CalculationFailureMode = "best-effort",
+  ): Promise<SkytreeEvent[]> {
     this.logger.info("ダイヤモンドスカイツリー計算開始", { 
       date: date.toISOString(), 
       locationCount: locations.length 
@@ -131,10 +147,21 @@ export class SkytreeAstronomicalCalculatorImpl implements SkytreeAstronomicalCal
       });
     }
 
+    if (failureMode === "strict") {
+      const failedResult = results.find((result) => !result.success);
+      if (failedResult && !failedResult.success) {
+        throw failedResult.error.originalError;
+      }
+    }
+
     return events;
   }
 
-  async calculatePearlSkytree(date: Date, locations: LocationType[]): Promise<SkytreeEvent[]> {
+  async calculatePearlSkytree(
+    date: Date,
+    locations: LocationType[],
+    failureMode: CalculationFailureMode = "best-effort",
+  ): Promise<SkytreeEvent[]> {
     this.logger.info("パールスカイツリー計算開始", { 
       date: date.toISOString(), 
       locationCount: locations.length 
@@ -203,6 +230,13 @@ export class SkytreeAstronomicalCalculatorImpl implements SkytreeAstronomicalCal
       errorCount
     });
 
+    if (failureMode === "strict") {
+      const failedResult = results.find((result) => !result.success);
+      if (failedResult && !failedResult.success) {
+        throw failedResult.error.originalError;
+      }
+    }
+
     return events;
   }
 
@@ -210,6 +244,7 @@ export class SkytreeAstronomicalCalculatorImpl implements SkytreeAstronomicalCal
     year: number,
     month: number,
     locations: LocationType[],
+    failureMode: CalculationFailureMode = "best-effort",
   ): Promise<SkytreeEvent[]> {
     const events: SkytreeEvent[] = [];
     const daysInMonth = new Date(year, month, 0).getDate();
@@ -218,11 +253,19 @@ export class SkytreeAstronomicalCalculatorImpl implements SkytreeAstronomicalCal
       const date = new Date(year, month - 1, day);
       
       // ダイヤモンドスカイツリー
-      const diamondEvents = await this.calculateDiamondSkytree(date, locations);
+      const diamondEvents = await this.calculateDiamondSkytree(
+        date,
+        locations,
+        failureMode,
+      );
       events.push(...diamondEvents);
 
       // パールスカイツリー
-      const pearlEvents = await this.calculatePearlSkytree(date, locations);
+      const pearlEvents = await this.calculatePearlSkytree(
+        date,
+        locations,
+        failureMode,
+      );
       events.push(...pearlEvents);
     }
 
@@ -232,11 +275,17 @@ export class SkytreeAstronomicalCalculatorImpl implements SkytreeAstronomicalCal
   async calculateLocationYearlyEvents(
     location: LocationType,
     year: number,
+    failureMode: CalculationFailureMode = "best-effort",
   ): Promise<SkytreeEvent[]> {
     const events: SkytreeEvent[] = [];
 
     for (let month = 1; month <= 12; month++) {
-      const monthlyEvents = await this.calculateMonthlyEvents(year, month, [location]);
+      const monthlyEvents = await this.calculateMonthlyEvents(
+        year,
+        month,
+        [location],
+        failureMode,
+      );
       events.push(...monthlyEvents);
     }
 

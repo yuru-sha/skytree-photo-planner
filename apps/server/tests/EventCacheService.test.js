@@ -1,7 +1,10 @@
 const mockRows = [];
 const mockPrisma = {};
 
-jest.mock("../src/database/prisma", () => ({ prisma: mockPrisma }));
+jest.mock("../src/database/prisma", () => ({
+  prisma: mockPrisma,
+  PrismaClientManager: { getInstance: () => mockPrisma },
+}));
 jest.mock("@skytree-photo-planner/utils", () => ({
   getComponentLogger: () => ({
     info: jest.fn(),
@@ -9,6 +12,13 @@ jest.mock("@skytree-photo-planner/utils", () => ({
     warn: jest.fn(),
     error: jest.fn(),
   }),
+  handleCalculationError: jest.fn((error) => ({
+    correlationId: "test-calculation",
+    originalError: error,
+  })),
+  timeUtils: {
+    formatDateString: (date) => date.toISOString(),
+  },
 }), { virtual: true });
 
 const location = {
@@ -223,5 +233,106 @@ describe("EventCacheService overlapping rebuilds", () => {
       "insert failed",
     );
     expect(mockRows).toEqual([original]);
+  });
+  it("keeps the old yearly cache when a location calculation fails", async () => {
+    const original = {
+      id: 1,
+      locationId: location.id,
+      eventDate: new Date("2026-01-01T09:00:00.000Z"),
+      eventTime: new Date("2026-01-01T06:00:00.000Z"),
+      azimuth: 80,
+      altitude: 5,
+      qualityScore: 0.6,
+      moonPhase: null,
+      moonIllumination: null,
+      calculationYear: 2026,
+      eventType: "diamond_sunrise",
+      accuracy: "good",
+    };
+    mockRows.push(original);
+    const database = {
+      location: {
+        findMany: jest.fn().mockResolvedValue([location]),
+      },
+      locationEvent: {
+        deleteMany: jest.fn(async () => {
+          mockRows.splice(0, mockRows.length);
+          return { count: 1 };
+        }),
+        createMany: jest.fn(async ({ data }) => {
+          mockRows.push(...data);
+          return { count: data.length };
+        }),
+      },
+    };
+    mockPrisma.$transaction = jest.fn(async (work) =>
+      work({
+        ...database,
+        $queryRaw: jest.fn().mockResolvedValue([]),
+      }),
+    );
+    Object.assign(mockPrisma, database);
+
+    const { SkytreeAstronomicalCalculatorImpl } = require(
+      "../src/services/SkytreeAstronomicalCalculator",
+    );
+    const calculator = new SkytreeAstronomicalCalculatorImpl({});
+    const calculationError = new Error("astronomical calculation failed");
+    jest
+      .spyOn(calculator.skytreeAlignmentCalc, "findDiamondSkytree")
+      .mockRejectedValue(calculationError);
+    jest
+      .spyOn(calculator.skytreeAlignmentCalc, "findPearlSkytree")
+      .mockResolvedValue([]);
+
+    expect(
+      await calculator.calculateDiamondSkytree(new Date(2026, 0, 1), [location]),
+    ).toEqual([]);
+    const { EventCacheService } = require("../src/services/EventCacheService");
+    const result = await new EventCacheService(calculator).generateYearlyCache(2026);
+    expect(result.error).toBe(calculationError);
+
+    expect(result.success).toBe(false);
+    expect(mockRows).toEqual([original]);
+  });
+  it("reports failed month and day rebuilds at batch level", async () => {
+    mockPrisma.location = {
+      findMany: jest.fn().mockResolvedValue([location]),
+    };
+    const eventCacheService = {
+      generateLocationMonthCache: jest.fn().mockResolvedValue({
+        success: false,
+        totalEvents: 0,
+        timeMs: 1,
+      }),
+      generateLocationDayCache: jest.fn().mockResolvedValue({
+        success: false,
+        totalEvents: 0,
+        timeMs: 1,
+      }),
+    };
+    const { BatchCalculationService } = require(
+      "../src/services/BatchCalculationService",
+    );
+    const service = new BatchCalculationService({}, eventCacheService);
+
+    const monthly = await service.calculateMonthlyEvents(2026, 5, [location.id]);
+    const daily = await service.calculateDayEvents(2026, 5, 10, [location.id]);
+
+    expect(monthly.success).toBe(false);
+    expect(monthly.locationResults).toEqual([
+      {
+        locationId: location.id,
+        locationName: location.name,
+        events: 0,
+        success: false,
+      },
+    ]);
+    expect(monthly.error).toBe("One or more locations failed");
+    expect(daily).toMatchObject({
+      success: false,
+      processedLocations: 1,
+      error: "One or more locations failed",
+    });
   });
 });

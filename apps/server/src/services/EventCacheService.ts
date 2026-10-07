@@ -101,6 +101,7 @@ export class EventCacheService {
                 await this.astronomicalCalculator.calculateLocationYearlyEvents(
                   location,
                   year,
+                  "strict",
                 );
               return { location, events };
             } catch (error) {
@@ -109,7 +110,7 @@ export class EventCacheService {
                 locationId: location.id,
                 locationName: location.name,
               });
-              return { location, events: [] }; // エラー時は空配列を返す
+              throw error;
             }
           }),
         );
@@ -219,6 +220,7 @@ export class EventCacheService {
         year,
         month,
         [locationTyped],
+        "strict",
       );
 
       const data = events.map((event) =>
@@ -324,12 +326,15 @@ export class EventCacheService {
       // その日のイベントを計算
       const date = new Date(year, month - 1, day, 12, 0, 0, 0); // JST 正午基準
       const diamondEvents =
-        await this.astronomicalCalculator.calculateDiamondSkytree(date, [
-          locationTyped,
-        ]);
+        await this.astronomicalCalculator.calculateDiamondSkytree(
+          date,
+          [locationTyped],
+          "strict",
+        );
       const pearlEvents = await this.astronomicalCalculator.calculatePearlSkytree(
         date,
         [locationTyped],
+        "strict",
       );
       const events = [...diamondEvents, ...pearlEvents];
 
@@ -433,6 +438,7 @@ export class EventCacheService {
         await this.astronomicalCalculator.calculateLocationYearlyEvents(
           locationTyped,
           year,
+          "strict",
         );
 
       const data = events.map((event: SkytreeEvent) =>

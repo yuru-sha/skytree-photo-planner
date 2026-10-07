@@ -201,6 +201,8 @@ export class BatchCalculationService {
         }
       }
 
+      const success = locationResults.every((result) => result.success);
+
       const timeMs = Date.now() - startTime;
 
       this.logger.info("月間計算完了", {
@@ -213,11 +215,12 @@ export class BatchCalculationService {
       });
 
       return {
-        success: true,
+        success,
         totalEvents,
         processedLocations,
         timeMs,
         locationResults,
+        error: success ? undefined : "One or more locations failed",
       };
     } catch (error) {
       const timeMs = Date.now() - startTime;
@@ -273,6 +276,7 @@ export class BatchCalculationService {
       });
 
       let totalEvents = 0;
+      let success = true;
 
       // 各地点でその日のデータをデータベースに保存
       for (const location of locations) {
@@ -283,6 +287,7 @@ export class BatchCalculationService {
           day,
         );
         totalEvents += dayResult.totalEvents;
+        if (!dayResult.success) success = false;
 
         this.logger.debug("地点日別計算完了", {
           locationId: location.id,
@@ -307,10 +312,11 @@ export class BatchCalculationService {
       });
 
       return {
-        success: true,
+        success,
         totalEvents,
         processedLocations: locations.length,
         timeMs,
+        error: success ? undefined : "One or more locations failed",
       };
     } catch (error) {
       const timeMs = Date.now() - startTime;
