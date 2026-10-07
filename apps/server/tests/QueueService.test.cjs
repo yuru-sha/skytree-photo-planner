@@ -14,8 +14,25 @@ class MockRedis extends EventEmitter {
 }
 
 const MockQueue = jest.fn().mockImplementation(() => {
+  const jobsById = new Map();
   const queue = {
     close: jest.fn().mockResolvedValue(undefined),
+    add: jest.fn().mockImplementation(async (name, data, options = {}) => {
+      if (options.jobId && jobsById.has(options.jobId)) {
+        return jobsById.get(options.jobId);
+      }
+
+      const job = {
+        id: options.jobId || `job-${jobsById.size + 1}`,
+        name,
+        data,
+        opts: options,
+      };
+      if (options.jobId) {
+        jobsById.set(options.jobId, job);
+      }
+      return job;
+    }),
   };
   mockQueueInstances.push(queue);
   return queue;
@@ -91,6 +108,35 @@ describe("QueueService initialization lifecycle", () => {
     expect(mockQueueInstances[0].close).toHaveBeenCalledTimes(1);
     expect(mockWorkerInstances[0].close).toHaveBeenCalledTimes(1);
     expect(redis.quit).toHaveBeenCalledTimes(1);
+  });
+
+  it("uses deterministic job IDs to deduplicate location calculations", async () => {
+    const { QueueService } = require("../src/services/QueueService");
+    const service = new QueueService(null, false);
+    const redis = mockRedisInstances[0];
+
+    redis.emit("ready");
+    jest.advanceTimersByTime(1000);
+    await Promise.resolve();
+    await Promise.resolve();
+
+    const firstId = await service.scheduleLocationCalculation(42, 2027, 2027, "low");
+    const duplicateId = await service.scheduleLocationCalculation(42, 2027, 2027, "low");
+    const differentLocationId = await service.scheduleLocationCalculation(43, 2027, 2027, "low");
+    const differentRangeId = await service.scheduleLocationCalculation(42, 2027, 2028, "low");
+
+    expect(firstId).toBe("location-42-2027-2027");
+    expect(duplicateId).toBe(firstId);
+    expect(differentLocationId).toBe("location-43-2027-2027");
+    expect(differentRangeId).toBe("location-42-2027-2028");
+
+    const addCalls = mockQueueInstances[0].add.mock.calls;
+    expect(addCalls[0][2].jobId).toBe("location-42-2027-2027");
+    expect(addCalls[1][2].jobId).toBe("location-42-2027-2027");
+    expect(addCalls[2][2].jobId).toBe("location-43-2027-2027");
+    expect(addCalls[3][2].jobId).toBe("location-42-2027-2028");
+
+    await service.shutdown();
   });
 
   it("cancels delayed initialization when shutdown starts", async () => {
