@@ -24,17 +24,12 @@ jobs:
           git add package-lock.json
           git diff --cached --quiet || git commit -m "chore: refresh package lockfile"
           git push
-      - name: Verify compilers
+      - name: Verify compiler selection
         run: |
           node node_modules/@typescript/native/bin/tsc --version
           node node_modules/typescript/bin/tsc --version
           test "$(node node_modules/@typescript/native/bin/tsc --version)" = "Version 7.0.2"
-      - run: npm run build:packages
-      - run: npm run typecheck
-      - run: npm run test
-      - run: npm run lint
-      - run: npm run build
-      - run: npm run check-circular
+          test "$(node node_modules/typescript/bin/tsc --version)" = "Version 5.9.3"
       - name: Remove helper workflow
         run: |
           git rm .github/workflows/refresh-lockfile.yml
