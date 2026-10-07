@@ -1,6 +1,11 @@
 {
   "extends": "./tsconfig.json",
   "compilerOptions": {
-    "isolatedModules": true
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"],
+      "@skytree-photo-planner/types": ["../../packages/types/src/index.ts"],
+      "@skytree-photo-planner/utils": ["../../packages/utils/src/index.ts"]
+    }
   }
 }
