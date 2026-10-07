@@ -14,8 +14,8 @@
     "worker": "ts-node src/worker.ts",
     "typecheck": "../../node_modules/@typescript/native/bin/tsc --noEmit",
     "test": "jest --config jest.config.js --runInBand",
-    "lint": "eslint src --ext .ts",
-    "lint:fix": "eslint src --ext .ts --fix",
+    "lint": "eslint src",
+    "lint:fix": "eslint src --fix",
     "clean": "rm -rf dist"
   },
   "dependencies": {
@@ -49,9 +49,9 @@
     "tsconfig-paths": "^4.2.0"
   },
   "devDependencies": {
-    "@typescript-eslint/eslint-plugin": "^6.10.0",
-    "@typescript-eslint/parser": "^6.10.0",
-    "eslint": "^8.53.0",
+    "@typescript-eslint/eslint-plugin": "^8.71.1",
+    "@typescript-eslint/parser": "^8.71.1",
+    "eslint": "^9.39.5",
     "nodemon": "^3.0.1"
   }
 }
