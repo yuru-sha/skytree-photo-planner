@@ -6,10 +6,10 @@ import type {
   MoonPosition,
 } from "@skytree-photo-planner/types";
 import type { SkytreeEvent } from "@skytree-photo-planner/types";
-import type { ISystemSettingsService } from "../interfaces/ISystemSettingsService";
-import { CoordinateCalculator } from "./CoordinateCalculator";
-import { CelestialPositionCalculator } from "./CelestialPositionCalculator";
-import { SeasonCalculator } from "./SeasonCalculator";
+import type { ISystemSettingsService } from "../interfaces/ISystemSettingsService.js";
+import { CoordinateCalculator } from "./CoordinateCalculator.js";
+import { CelestialPositionCalculator } from "./CelestialPositionCalculator.js";
+import { SeasonCalculator } from "./SeasonCalculator.js";
 
 /**
  * スカイツリーと天体の整列計算を担当するクラス

@@ -1,4 +1,4 @@
-import { EventService } from "./EventService";
+import { EventService } from "./EventService.js";
 
 /**
  * QueueService インターフェース
