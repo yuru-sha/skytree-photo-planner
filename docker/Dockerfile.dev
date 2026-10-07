@@ -1,5 +1,5 @@
 # 開発用 Dockerfile - モノレポ構成（v0.3.0）
-FROM node:18-alpine
+FROM node:26.10.0-alpine
 
 # 必要なシステムパッケージをインストール（PostgreSQL 用）
 RUN apk add --no-cache \
