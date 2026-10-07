@@ -24,6 +24,9 @@ export class QueueService implements IQueueService {
   private worker: Worker | null = null;
   private eventService: EventService | null = null;
   private systemSettingsService: { getPerformanceSettings(): Promise<PerformanceSettings>; updateSetting(key: string, value: string | number | boolean, type: string): Promise<void> } | null = null;
+  private initializationTimer: ReturnType<typeof setTimeout> | null = null;
+  private initializationPromise: Promise<void> | null = null;
+  private shuttingDown = false;
 
   constructor(eventService: EventService | null = null, enableWorker: boolean = true) {
     this.eventService = eventService;
@@ -93,11 +96,24 @@ export class QueueService implements IQueueService {
     });
 
     this.redis.on("ready", () => {
+      if (
+        this.shuttingDown ||
+        this.eventCalculationQueue ||
+        this.worker ||
+        this.initializationTimer ||
+        this.initializationPromise
+      ) {
+        logger.debug("Redis ready を受信しましたが、キュー初期化は既に進行中または完了済みです");
+        return;
+      }
+
       logger.info("Redis 準備完了 - キューシステム初期化開始", { enableWorker });
-      // Redis 準備完了後にキューを初期化
-      setTimeout(() => {
-        this.initializeQueue(enableWorker);
-      }, 1000); // 1 秒待ってからキューを初期化
+      this.initializationTimer = setTimeout(() => {
+        this.initializationTimer = null;
+        this.initializationPromise = this.initializeQueue(enableWorker).finally(() => {
+          this.initializationPromise = null;
+        });
+      }, 1000);
     });
   }
 
@@ -111,8 +127,18 @@ export class QueueService implements IQueueService {
    * キューの初期化（ワーカー有効/無効対応）
    */
   private async initializeQueue(enableWorker: boolean = true): Promise<void> {
+    if (this.shuttingDown) {
+      logger.debug("シャットダウン中のため、キューシステムを初期化しません");
+      return;
+    }
+
     if (!this.redis) {
       logger.warn("Redis が無効のため、キューシステムを初期化しません");
+      return;
+    }
+
+    if (this.eventCalculationQueue || this.worker) {
+      logger.debug("キューシステムは既に初期化済みです");
       return;
     }
 
@@ -769,6 +795,16 @@ export class QueueService implements IQueueService {
    */
   async shutdown(): Promise<void> {
     logger.info("QueueService シャットダウン開始");
+    this.shuttingDown = true;
+
+    if (this.initializationTimer) {
+      clearTimeout(this.initializationTimer);
+      this.initializationTimer = null;
+    }
+
+    if (this.initializationPromise) {
+      await this.initializationPromise;
+    }
 
     if (this.worker) {
       await this.worker.close();
