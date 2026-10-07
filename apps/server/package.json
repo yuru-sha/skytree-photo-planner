@@ -17,7 +17,10 @@
     "lint": "eslint src",
     "lint:fix": "eslint src --fix",
     "clean": "rm -rf dist",
-    "prisma:generate": "prisma generate --config ../../prisma.config.ts"
+    "prisma:generate": "prisma generate --config ../../prisma.config.ts",
+    "prebuild": "npm run prisma:generate",
+    "pretypecheck": "npm run prisma:generate",
+    "pretest": "npm run prisma:generate"
   },
   "dependencies": {
     "@skytree-photo-planner/types": "^0.1.0",
