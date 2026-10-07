@@ -48,7 +48,7 @@
   "devDependencies": {
     "@types/cookie-parser": "^1.4.9",
     "@types/jest": "^30.0.0",
-    "@types/node": "^20.9.0",
+    "@types/node": "^26.6.4",
     "@typescript-eslint/eslint-plugin": "^6.10.0",
     "@typescript-eslint/parser": "^6.10.0",
     "concurrently": "^8.2.2",
@@ -59,7 +59,7 @@
     "playwright": "^1.54.2",
     "terser": "^5.43.1",
     "ts-jest": "^29.4.1",
-    "typescript": "^5.9.2"
+    "typescript": "^7.0.2"
   },
   "engines": {
     "node": ">=26.10.0",
