@@ -1,9 +1,9 @@
 import express from "express";
-import { Bootstrap } from "./bootstrap";
-import { setupMiddleware } from "./middleware/app";
-import { setupRoutes } from "./routes";
-import { DIContainer } from "./di/DIContainer";
-import { ServiceRegistry } from "./di/ServiceRegistry";
+import { Bootstrap } from "./bootstrap.js";
+import { setupMiddleware } from "./middleware/app.js";
+import { setupRoutes } from "./routes/index.js";
+import { DIContainer } from "./di/DIContainer.js";
+import { ServiceRegistry } from "./di/ServiceRegistry.js";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
 
 const logger = getComponentLogger("server");

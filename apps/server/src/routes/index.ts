@@ -1,22 +1,25 @@
 import { Express, Request, Response } from "express";
-import { AuthenticatedRequest } from "../middleware/auth";
+import { AuthenticatedRequest } from "../middleware/auth.js";
 import path from "path";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
-import LocationController from "../controllers/LocationController";
-import { CalendarController } from "../controllers/CalendarController";
-import { AuthController } from "../controllers/AuthController";
-import { BackgroundJobController } from "../controllers/BackgroundJobController";
+import LocationController from "../controllers/LocationController.js";
+import { CalendarController } from "../controllers/CalendarController.js";
+import { AuthController } from "../controllers/AuthController.js";
+import { BackgroundJobController } from "../controllers/BackgroundJobController.js";
 import {
   authenticateAdmin,
   authRateLimit,
   adminApiRateLimit,
-} from "../middleware/auth";
-import { DIContainer } from "../di/DIContainer";
-import { createSystemSettingsRouter } from "./systemSettings";
-import { QueueService } from "../services/interfaces/QueueService";
-import { LocationRepository } from "../repositories/interfaces/LocationRepository";
+} from "../middleware/auth.js";
+import { DIContainer } from "../di/DIContainer.js";
+import { createSystemSettingsRouter } from "./systemSettings.js";
+import { QueueService } from "../services/interfaces/QueueService.js";
+import { LocationRepository } from "../repositories/interfaces/LocationRepository.js";
 import { SkytreeEvent } from "@skytree-photo-planner/types";
-import { SkytreeAlignmentCalculator } from "../services/astronomical/SkytreeAlignmentCalculator";
+import { SkytreeAlignmentCalculator } from "../services/astronomical/SkytreeAlignmentCalculator.js";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const serverLogger = getComponentLogger("server");
 

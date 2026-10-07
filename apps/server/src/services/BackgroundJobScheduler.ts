@@ -1,6 +1,6 @@
 import * as cron from "node-cron";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
-import type { DIContainer } from "../di/DIContainer";
+import type { DIContainer } from "../di/DIContainer.js";
 
 /**
  * バックグラウンドジョブスケジューラー

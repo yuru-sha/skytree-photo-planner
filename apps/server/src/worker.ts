@@ -12,10 +12,11 @@
  * node dist/server/worker.js
  */
 
-import { DIContainer } from "./di/DIContainer";
-import { ServiceRegistry } from "./di/ServiceRegistry";
-import { QueueService } from "./services/interfaces/QueueService";
+import { DIContainer } from "./di/DIContainer.js";
+import { ServiceRegistry } from "./di/ServiceRegistry.js";
+import { QueueService } from "./services/interfaces/QueueService.js";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
+import { pathToFileURL } from "node:url";
 
 const logger = getComponentLogger("queue-worker");
 
@@ -137,7 +138,7 @@ async function main() {
 }
 
 // プロセス開始
-if (require.main === module) {
+if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) {
   main().catch((error) => {
     logger.error("ワーカーで Unexpected エラーが発生しました", error);
     process.exit(1);

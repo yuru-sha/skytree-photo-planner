@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
-import { SystemSettingsService } from "../services/SystemSettingsService";
+import { SystemSettingsService } from "../services/SystemSettingsService.js";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
+
+const getRouteParam = (value: string | string[]): string =>
+  Array.isArray(value) ? (value[0] ?? "") : value;
 
 /**
  * システム設定管理コントローラー
@@ -72,7 +75,7 @@ export class SystemSettingsController {
    */
   async updateSetting(req: Request, res: Response): Promise<void> {
     try {
-      const { settingKey } = req.params;
+      const settingKey = getRouteParam(req.params.settingKey);
       const { value } = req.body;
 
       this.logger.info("システム設定更新開始", { settingKey, value });

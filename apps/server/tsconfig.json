@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
     "target": "ES2020",
-    "module": "Node16",
+    "module": "NodeNext",
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": false,
@@ -12,19 +12,26 @@
     "declaration": true,
     "sourceMap": true,
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     },
     "noImplicitAny": false,
     "noImplicitReturns": false,
     "noImplicitThis": false,
     "strictNullChecks": false,
-    "moduleResolution": "Node16"
+    "moduleResolution": "NodeNext"
   },
   "ts-node": {
-    "esm": false,
+    "esm": true,
     "transpileOnly": true,
     "files": true
   },
-  "include": ["src/**/*"],
-  "exclude": ["node_modules", "dist"]
+  "include": [
+    "src/**/*"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

@@ -1,6 +1,9 @@
 import { Request, Response } from "express";
-import { CalendarService } from "../services/interfaces/CalendarService";
+import { CalendarService } from "../services/interfaces/CalendarService.js";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
+
+const getRouteParam = (value: string | string[]): string =>
+  Array.isArray(value) ? (value[0] ?? "") : value;
 
 export class CalendarController {
   private logger = getComponentLogger("calendar-controller");
@@ -13,8 +16,8 @@ export class CalendarController {
     const startTime = Date.now();
 
     try {
-      const year = parseInt(req.params.year);
-      const month = parseInt(req.params.month);
+      const year = parseInt(getRouteParam(req.params.year));
+      const month = parseInt(getRouteParam(req.params.month));
 
       // バリデーション
       if (isNaN(year) || isNaN(month)) {
@@ -54,8 +57,8 @@ export class CalendarController {
     } catch (error) {
       const processingTime = Date.now() - startTime;
       this.logger.error("月間カレンダー取得エラー", {
-        year: req.params.year,
-        month: req.params.month,
+        year: getRouteParam(req.params.year),
+        month: getRouteParam(req.params.month),
         error,
         processingTime,
       });
@@ -71,7 +74,7 @@ export class CalendarController {
   // GET /api/events/:date
   async getDayEvents(req: Request, res: Response) {
     try {
-      const { date } = req.params;
+      const date = getRouteParam(req.params.date);
 
       // 日付形式の簡易バリデーション
       if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) {
@@ -141,8 +144,8 @@ export class CalendarController {
   // GET /api/calendar/location/:locationId/:year
   async getLocationYearlyEvents(req: Request, res: Response) {
     try {
-      const locationId = parseInt(req.params.locationId);
-      const year = parseInt(req.params.year);
+      const locationId = parseInt(getRouteParam(req.params.locationId));
+      const year = parseInt(getRouteParam(req.params.year));
 
       if (isNaN(locationId) || isNaN(year)) {
         return res.status(400).json({
@@ -177,8 +180,8 @@ export class CalendarController {
       res.json({ events });
     } catch (error) {
       this.logger.error("地点別年間イベント取得エラー", {
-        locationId: req.params.locationId,
-        year: req.params.year,
+        locationId: getRouteParam(req.params.locationId),
+        year: getRouteParam(req.params.year),
         error,
       });
 
@@ -193,7 +196,7 @@ export class CalendarController {
   // GET /api/calendar/stats/:year
   async getCalendarStats(req: Request, res: Response) {
     try {
-      const year = parseInt(req.params.year);
+      const year = parseInt(getRouteParam(req.params.year));
 
       if (isNaN(year)) {
         return res.status(400).json({
@@ -218,7 +221,7 @@ export class CalendarController {
       res.json(stats);
     } catch (error) {
       this.logger.error("カレンダー統計情報取得エラー", {
-        year: req.params.year,
+        year: getRouteParam(req.params.year),
         error,
       });
 

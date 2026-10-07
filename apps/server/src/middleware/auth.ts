@@ -1,9 +1,9 @@
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import rateLimit from "express-rate-limit";
-import { PrismaClientManager } from "../database/prisma";
+import { PrismaClientManager } from "../database/prisma.js";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
-import { AUTH_CONFIG } from "../config/auth";
+import { AUTH_CONFIG } from "../config/auth.js";
 
 // JWT ペイロード型定義（AuthService と同期）
 interface JwtAccessPayload {

@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { AuthService } from "../services/interfaces/AuthService";
+import { AuthService } from "../services/interfaces/AuthService.js";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
 
 export class AuthController {

@@ -1,10 +1,10 @@
 import { SkytreeEvent, CalendarStats, Location } from "@skytree-photo-planner/types";
 import { getComponentLogger, timeUtils } from "@skytree-photo-planner/utils";
-import { CalendarService } from "./interfaces/CalendarService";
-import { CalendarRepository } from "../repositories/interfaces/CalendarRepository";
-import { SkytreeAstronomicalCalculator } from "./SkytreeAstronomicalCalculator";
-import { LocationRepository } from "../repositories/interfaces/LocationRepository";
-import { CoordinateCalculator } from "./astronomical/CoordinateCalculator";
+import { CalendarService } from "./interfaces/CalendarService.js";
+import { CalendarRepository } from "../repositories/interfaces/CalendarRepository.js";
+import { SkytreeAstronomicalCalculator } from "./SkytreeAstronomicalCalculator.js";
+import { LocationRepository } from "../repositories/interfaces/LocationRepository.js";
+import { CoordinateCalculator } from "./astronomical/CoordinateCalculator.js";
 
 const logger = getComponentLogger("calendar-service");
 

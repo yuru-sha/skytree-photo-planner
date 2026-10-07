@@ -1,7 +1,7 @@
 import { getComponentLogger } from "@skytree-photo-planner/utils";
 import type { SystemSetting } from "@skytree-photo-planner/types";
-import type { ISystemSettingsService } from "./interfaces/ISystemSettingsService";
-import type { SystemSettingsRepository } from "../repositories/interfaces/SystemSettingsRepository";
+import type { ISystemSettingsService } from "./interfaces/ISystemSettingsService.js";
+import type { SystemSettingsRepository } from "../repositories/interfaces/SystemSettingsRepository.js";
 
 const logger = getComponentLogger("SystemSettingsService");
 

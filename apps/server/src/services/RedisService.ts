@@ -1,4 +1,4 @@
-import Redis from "ioredis";
+import { Redis } from "ioredis";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
 import { SkytreeEvent } from "@skytree-photo-planner/types";
 

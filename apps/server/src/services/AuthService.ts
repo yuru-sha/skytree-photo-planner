@@ -1,9 +1,9 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { AuthService } from "./interfaces/AuthService";
-import { AuthRepository } from "../repositories/interfaces/AuthRepository";
+import { AuthService } from "./interfaces/AuthService.js";
+import { AuthRepository } from "../repositories/interfaces/AuthRepository.js";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
-import { AUTH_CONFIG } from "../config/auth";
+import { AUTH_CONFIG } from "../config/auth.js";
 
 const logger = getComponentLogger("auth-service");
 
