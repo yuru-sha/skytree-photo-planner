@@ -1,10 +1,10 @@
 import { Request, Response } from "express";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
-import type { DIContainer } from "../di/DIContainer";
+import type { DIContainer } from "../di/DIContainer.js";
 
 // 型のみのインポート - 実際の使用は動的解決
-// import type { QueueService } from '../services/interfaces/QueueService';
-// import type { BackgroundJobScheduler } from '../services/BackgroundJobScheduler';
+// import type { QueueService } from '../services/interfaces/QueueService.js';
+// import type { BackgroundJobScheduler } from '../services/BackgroundJobScheduler.js';
 
 const logger = getComponentLogger("BackgroundJobController");
 

@@ -1,36 +1,36 @@
-import { DIContainer } from "./DIContainer";
+import { DIContainer } from "./DIContainer.js";
 import { PrismaClient } from "@prisma/client";
 
 // Repository インターフェースと実装
-import { LocationRepository } from "../repositories/interfaces/LocationRepository";
-import { PrismaLocationRepository } from "../repositories/PrismaLocationRepository";
-import { CalendarRepository } from "../repositories/interfaces/CalendarRepository";
-import { PrismaCalendarRepository } from "../repositories/PrismaCalendarRepository";
-import { AuthRepository } from "../repositories/interfaces/AuthRepository";
-import { PrismaAuthRepository } from "../repositories/PrismaAuthRepository";
-import { SystemSettingsRepository } from "../repositories/interfaces/SystemSettingsRepository";
-import { PrismaSystemSettingsRepository } from "../repositories/PrismaSystemSettingsRepository";
+import { LocationRepository } from "../repositories/interfaces/LocationRepository.js";
+import { PrismaLocationRepository } from "../repositories/PrismaLocationRepository.js";
+import { CalendarRepository } from "../repositories/interfaces/CalendarRepository.js";
+import { PrismaCalendarRepository } from "../repositories/PrismaCalendarRepository.js";
+import { AuthRepository } from "../repositories/interfaces/AuthRepository.js";
+import { PrismaAuthRepository } from "../repositories/PrismaAuthRepository.js";
+import { SystemSettingsRepository } from "../repositories/interfaces/SystemSettingsRepository.js";
+import { PrismaSystemSettingsRepository } from "../repositories/PrismaSystemSettingsRepository.js";
 
 // Service インターフェースと実装
-import { SkytreeAstronomicalCalculator, SkytreeAstronomicalCalculatorImpl } from "../services/SkytreeAstronomicalCalculator";
-import { SkytreeAlignmentCalculator } from "../services/astronomical/SkytreeAlignmentCalculator";
-import { EventService } from "../services/interfaces/EventService";
-import { EventServiceImpl } from "../services/EventServiceImpl";
-import { EventCacheService } from "../services/EventCacheService";
-import { LocationService } from "../services/LocationService";
-import { QueueService as QueueServiceImpl } from "../services/QueueService";
-import { QueueService } from "../services/interfaces/QueueService";
-import { CalendarService } from "../services/interfaces/CalendarService";
-import { CalendarServiceImpl } from "../services/CalendarService";
-import { AuthService } from "../services/interfaces/AuthService";
-import { AuthServiceImpl } from "../services/AuthService";
-import { SystemSettingsService } from "../services/SystemSettingsService";
-import { BatchCalculationService } from "../services/BatchCalculationService";
+import { SkytreeAstronomicalCalculator, SkytreeAstronomicalCalculatorImpl } from "../services/SkytreeAstronomicalCalculator.js";
+import { SkytreeAlignmentCalculator } from "../services/astronomical/SkytreeAlignmentCalculator.js";
+import { EventService } from "../services/interfaces/EventService.js";
+import { EventServiceImpl } from "../services/EventServiceImpl.js";
+import { EventCacheService } from "../services/EventCacheService.js";
+import { LocationService } from "../services/LocationService.js";
+import { QueueService as QueueServiceImpl } from "../services/QueueService.js";
+import { QueueService } from "../services/interfaces/QueueService.js";
+import { CalendarService } from "../services/interfaces/CalendarService.js";
+import { CalendarServiceImpl } from "../services/CalendarService.js";
+import { AuthService } from "../services/interfaces/AuthService.js";
+import { AuthServiceImpl } from "../services/AuthService.js";
+import { SystemSettingsService } from "../services/SystemSettingsService.js";
+import { BatchCalculationService } from "../services/BatchCalculationService.js";
 
 // Controller
-import { LocationController } from "../controllers/LocationController";
-import { CalendarController } from "../controllers/CalendarController";
-import { AuthController } from "../controllers/AuthController";
+import { LocationController } from "../controllers/LocationController.js";
+import { CalendarController } from "../controllers/CalendarController.js";
+import { AuthController } from "../controllers/AuthController.js";
 
 import { getComponentLogger } from "@skytree-photo-planner/utils";
 

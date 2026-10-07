@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { SystemSettingsService } from "../services/SystemSettingsService";
+import { SystemSettingsService } from "../services/SystemSettingsService.js";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
 
 /**

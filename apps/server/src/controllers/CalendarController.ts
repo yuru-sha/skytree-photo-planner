@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { CalendarService } from "../services/interfaces/CalendarService";
+import { CalendarService } from "../services/interfaces/CalendarService.js";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
 
 export class CalendarController {

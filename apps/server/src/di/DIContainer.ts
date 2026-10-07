@@ -1,5 +1,5 @@
 import { getComponentLogger } from "@skytree-photo-planner/utils";
-import type { QueueService as QueueServiceInterface } from "../services/interfaces/QueueService";
+import type { QueueService as QueueServiceInterface } from "../services/interfaces/QueueService.js";
 
 const logger = getComponentLogger("DIContainer");
 

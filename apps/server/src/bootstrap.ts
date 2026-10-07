@@ -1,8 +1,11 @@
 import { Express } from "express";
 import path from "path";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
-import { DIContainer } from "./di/DIContainer";
-import { QueueService } from "./services/interfaces/QueueService";
+import { DIContainer } from "./di/DIContainer.js";
+import { QueueService } from "./services/interfaces/QueueService.js";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const logger = getComponentLogger("bootstrap");
 
 export interface BootstrapConfig {

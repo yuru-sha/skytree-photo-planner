@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { LocationService } from "../services/LocationService";
+import { LocationService } from "../services/LocationService.js";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
 
 const logger = getComponentLogger("LocationController");
