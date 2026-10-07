@@ -4,10 +4,10 @@ import {
   MonthlyEventResult,
   YearlyEventResult,
   CacheValidationResult,
-} from "./interfaces/EventService";
-import { EventCacheService } from "./EventCacheService";
-import { SkytreeAstronomicalCalculator } from "./SkytreeAstronomicalCalculator";
-import { PrismaClientManager } from "../database/prisma";
+} from "./interfaces/EventService.js";
+import { EventCacheService } from "./EventCacheService.js";
+import { SkytreeAstronomicalCalculator } from "./SkytreeAstronomicalCalculator.js";
+import { PrismaClientManager } from "../database/prisma.js";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
 
 const logger = getComponentLogger("EventServiceImpl");

@@ -1,6 +1,6 @@
-import { prisma } from "../database/prisma";
+import { prisma } from "../database/prisma.js";
 import type { Prisma } from "@prisma/client";
-import { SkytreeAstronomicalCalculator } from "./SkytreeAstronomicalCalculator";
+import { SkytreeAstronomicalCalculator } from "./SkytreeAstronomicalCalculator.js";
 import { Location } from "@skytree-photo-planner/types";
 import { SkytreeEvent } from "@skytree-photo-planner/types";
 import { getComponentLogger, StructuredLogger } from "@skytree-photo-planner/utils";

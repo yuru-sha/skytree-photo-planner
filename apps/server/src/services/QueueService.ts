@@ -1,8 +1,8 @@
 import { Queue, Worker, Job } from "bullmq";
 import IORedis from "ioredis";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
-import { EventService } from "./interfaces/EventService";
-import { QueueService as IQueueService } from "./interfaces/QueueService";
+import { EventService } from "./interfaces/EventService.js";
+import { QueueService as IQueueService } from "./interfaces/QueueService.js";
 
 interface PerformanceSettings {
   workerConcurrency: number;

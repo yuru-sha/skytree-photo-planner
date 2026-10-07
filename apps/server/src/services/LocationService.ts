@@ -1,8 +1,8 @@
 import { Location, CreateLocationRequest, SKYTREE_COORDINATES } from "@skytree-photo-planner/types";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
-import { LocationRepository } from "../repositories/interfaces/LocationRepository";
-import { SkytreeAstronomicalCalculator } from "./SkytreeAstronomicalCalculator";
-import { QueueService } from "./interfaces/QueueService";
+import { LocationRepository } from "../repositories/interfaces/LocationRepository.js";
+import { SkytreeAstronomicalCalculator } from "./SkytreeAstronomicalCalculator.js";
+import { QueueService } from "./interfaces/QueueService.js";
 
 const logger = getComponentLogger("LocationService");
 

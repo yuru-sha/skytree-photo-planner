@@ -5,11 +5,11 @@ import {
 } from "@skytree-photo-planner/types";
 import { SkytreeEvent } from "@skytree-photo-planner/types";
 import { getComponentLogger, timeUtils, handleCalculationError } from "@skytree-photo-planner/utils";
-import { CoordinateCalculator } from "./astronomical/CoordinateCalculator";
-import { CelestialPositionCalculator } from "./astronomical/CelestialPositionCalculator";
-import { SkytreeAlignmentCalculator } from "./astronomical/SkytreeAlignmentCalculator";
-import { SeasonCalculator } from "./astronomical/SeasonCalculator";
-import type { ISystemSettingsService } from "./interfaces/ISystemSettingsService";
+import { CoordinateCalculator } from "./astronomical/CoordinateCalculator.js";
+import { CelestialPositionCalculator } from "./astronomical/CelestialPositionCalculator.js";
+import { SkytreeAlignmentCalculator } from "./astronomical/SkytreeAlignmentCalculator.js";
+import { SeasonCalculator } from "./astronomical/SeasonCalculator.js";
+import type { ISystemSettingsService } from "./interfaces/ISystemSettingsService.js";
 
 // スカイツリー用のインターフェース
 export type CalculationFailureMode = "best-effort" | "strict";
