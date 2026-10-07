@@ -3,6 +3,9 @@ import cors from "cors";
 import helmet from "helmet";
 import cookieParser from "cookie-parser";
 import path from "path";
+import { fileURLToPath } from "node:url";
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 export function setupMiddleware(app: Express): void {
   // プロキシ信頼設定（本番環境ではプロキシ経由でアクセスされることが多い）

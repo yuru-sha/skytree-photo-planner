@@ -1,7 +1,7 @@
 import { SystemSetting } from "@skytree-photo-planner/types";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
-import { SystemSettingsRepository } from "./interfaces/SystemSettingsRepository";
-import { PrismaClientManager } from "../database/prisma";
+import { SystemSettingsRepository } from "./interfaces/SystemSettingsRepository.js";
+import { PrismaClientManager } from "../database/prisma.js";
 
 export class PrismaSystemSettingsRepository
   implements SystemSettingsRepository

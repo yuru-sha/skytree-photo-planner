@@ -1,7 +1,7 @@
 import { Admin } from "@skytree-photo-planner/types";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
-import { AuthRepository } from "./interfaces/AuthRepository";
-import { PrismaClientManager } from "../database/prisma";
+import { AuthRepository } from "./interfaces/AuthRepository.js";
+import { PrismaClientManager } from "../database/prisma.js";
 
 const logger = getComponentLogger("prisma-auth-repository");
 

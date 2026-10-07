@@ -1,7 +1,7 @@
 import { Location, CreateLocationRequest } from "@skytree-photo-planner/types";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
-import { PrismaClientManager } from "../database/prisma";
-import { LocationRepository } from "./interfaces/LocationRepository";
+import { PrismaClientManager } from "../database/prisma.js";
+import { LocationRepository } from "./interfaces/LocationRepository.js";
 
 const logger = getComponentLogger("PrismaLocationRepository");
 
