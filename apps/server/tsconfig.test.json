@@ -3,9 +3,17 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./src/*"],
-      "@skytree-photo-planner/types": ["../../packages/types/src/index.ts"],
-      "@skytree-photo-planner/utils": ["../../packages/utils/src/index.ts"]
-    }
+      "@/*": [
+        "./src/*"
+      ],
+      "@skytree-photo-planner/types": [
+        "../../packages/types/src/index.ts"
+      ],
+      "@skytree-photo-planner/utils": [
+        "../../packages/utils/src/index.ts"
+      ]
+    },
+    "module": "CommonJS",
+    "moduleResolution": "Node"
   }
 }
