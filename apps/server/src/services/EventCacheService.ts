@@ -1,8 +1,12 @@
 import { prisma } from "../database/prisma";
+import type { Prisma } from "@prisma/client";
 import { SkytreeAstronomicalCalculator } from "./SkytreeAstronomicalCalculator";
 import { Location } from "@skytree-photo-planner/types";
 import { SkytreeEvent } from "@skytree-photo-planner/types";
 import { getComponentLogger, StructuredLogger } from "@skytree-photo-planner/utils";
+
+const EVENT_CACHE_REBUILD_LOCK_NAMESPACE = 0x45564348;
+const EVENT_CACHE_INSERT_BATCH_SIZE = 100;
 
 /**
  * イベントキャッシュサービス
@@ -30,17 +34,6 @@ export class EventCacheService {
 
     try {
       this.logger.info("年間キャッシュ生成開始", { year });
-
-      // 既存データを削除
-      const deletedCount = await prisma.locationEvent.deleteMany({
-        where: {
-          calculationYear: year,
-        },
-      });
-      this.logger.info("既存データ削除完了", {
-        year,
-        deletedCount: deletedCount.count,
-      });
 
       // 全地点を取得
       const locations = await prisma.location.findMany();
@@ -108,6 +101,7 @@ export class EventCacheService {
                 await this.astronomicalCalculator.calculateLocationYearlyEvents(
                   location,
                   year,
+                  "strict",
                 );
               return { location, events };
             } catch (error) {
@@ -116,7 +110,7 @@ export class EventCacheService {
                 locationId: location.id,
                 locationName: location.name,
               });
-              return { location, events: [] }; // エラー時は空配列を返す
+              throw error;
             }
           }),
         );
@@ -133,59 +127,29 @@ export class EventCacheService {
         totalEvents: events.length,
       });
 
-      // データベースに保存（バッチ保存）
-      const savedEvents = [];
-      const saveBatchSize = 100; // データベース保存のバッチサイズ
-
-      for (let i = 0; i < events.length; i += saveBatchSize) {
-        const batch = events.slice(i, i + saveBatchSize);
-        const progress = Math.round((i / events.length) * 100);
-
-        this.logger.debug("データベース保存進行中", {
-          year,
-          progress: `${progress}%`,
-          currentBatch: `${i + 1}-${Math.min(i + saveBatchSize, events.length)}`,
-          totalEvents: events.length,
-        });
-
-        const batchSaved = await Promise.all(
-          batch.map((event) =>
-            prisma.locationEvent.create({
-              data: {
-                locationId: event.location.id,
-                eventDate: this.createJstDateOnly(event.time),
-                eventTime: event.time,
-                azimuth: event.azimuth || 0,
-                altitude: event.elevation || 0,
-                qualityScore: this.getQualityScore(event.accuracy),
-                moonPhase: event.moonPhase,
-                moonIllumination: event.moonIllumination,
-                calculationYear: year,
-                eventType: this.getEventType(event),
-                accuracy: this.mapAccuracy(event.accuracy),
-              },
-            }),
-          ),
-        );
-
-        savedEvents.push(...batchSaved);
-      }
+      const data = events.map((event) => this.createCacheRecord(event, year));
+      const { deletedCount, insertedCount } = await this.replaceCacheData(
+        year,
+        { calculationYear: year },
+        data,
+      );
+      this.logger.info("既存データ削除完了", { year, deletedCount });
 
       const endTime = Date.now();
 
       this.logger.info("年間キャッシュ生成完了", {
         year,
-        totalEvents: savedEvents.length,
+        totalEvents: insertedCount,
         timeMs: endTime - startTime,
         locations: locationTyped.length,
         avgEventsPerLocation: Math.round(
-          savedEvents.length / locationTyped.length,
+          insertedCount / locationTyped.length,
         ),
       });
 
       return {
         success: true,
-        totalEvents: savedEvents.length,
+        totalEvents: insertedCount,
         timeMs: endTime - startTime,
       };
     } catch (error) {
@@ -250,12 +214,21 @@ export class EventCacheService {
         status: location.status as Location['status'],
       };
 
-      // 該当月の既存データを削除
       const monthStart = new Date(year, month - 1, 1);
       const monthEnd = new Date(year, month, 0, 23, 59, 59, 999);
+      const events = await this.astronomicalCalculator.calculateMonthlyEvents(
+        year,
+        month,
+        [locationTyped],
+        "strict",
+      );
 
-      await prisma.locationEvent.deleteMany({
-        where: {
+      const data = events.map((event) =>
+        this.createCacheRecord(event, year, true),
+      );
+      const { insertedCount } = await this.replaceCacheData(
+        year,
+        {
           locationId: locationId,
           calculationYear: year,
           eventTime: {
@@ -263,35 +236,7 @@ export class EventCacheService {
             lte: monthEnd,
           },
         },
-      });
-
-      // 月間イベントを計算
-      const events = await this.astronomicalCalculator.calculateMonthlyEvents(
-        year,
-        month,
-        [locationTyped],
-      );
-
-      // データベースに保存
-      const savedEvents = await Promise.all(
-        events.map((event) =>
-          // prisma.locationEvent.create - テーブルが存在しないため無効化
-prisma.locationEvent.create({
-            data: {
-              locationId: event.location.id,
-              eventDate: this.createJstDateOnly(event.time),
-              eventTime: event.time,
-              azimuth: event.azimuth || 0,
-              altitude: event.elevation || 0,
-              qualityScore: this.getQualityScore(event.accuracy),
-              moonPhase: event.moonPhase || null,
-              moonIllumination: event.moonIllumination || null,
-              calculationYear: year,
-              eventType: this.getEventType(event),
-              accuracy: this.mapAccuracy(event.accuracy),
-            },
-          }),
-        ),
+        data,
       );
 
       const endTime = Date.now();
@@ -300,13 +245,13 @@ prisma.locationEvent.create({
         locationId,
         year,
         month,
-        totalEvents: savedEvents.length,
+        totalEvents: insertedCount,
         timeMs: endTime - startTime,
       });
 
       return {
         success: true,
-        totalEvents: savedEvents.length,
+        totalEvents: insertedCount,
         timeMs: endTime - startTime,
       };
     } catch (error) {
@@ -376,12 +321,29 @@ prisma.locationEvent.create({
         status: location.status as Location['status'],
       };
 
-      // 該当日の既存データを削除
       const dayStart = new Date(year, month - 1, day, 0, 0, 0, 0);
       const dayEnd = new Date(year, month - 1, day, 23, 59, 59, 999);
+      // その日のイベントを計算
+      const date = new Date(year, month - 1, day, 12, 0, 0, 0); // JST 正午基準
+      const diamondEvents =
+        await this.astronomicalCalculator.calculateDiamondSkytree(
+          date,
+          [locationTyped],
+          "strict",
+        );
+      const pearlEvents = await this.astronomicalCalculator.calculatePearlSkytree(
+        date,
+        [locationTyped],
+        "strict",
+      );
+      const events = [...diamondEvents, ...pearlEvents];
 
-      await prisma.locationEvent.deleteMany({
-        where: {
+      const data = events.map((event) =>
+        this.createCacheRecord(event, year, true),
+      );
+      const { insertedCount } = await this.replaceCacheData(
+        year,
+        {
           locationId: locationId,
           calculationYear: year,
           eventTime: {
@@ -389,40 +351,7 @@ prisma.locationEvent.create({
             lte: dayEnd,
           },
         },
-      });
-
-      // その日のイベントを計算
-      const date = new Date(year, month - 1, day, 12, 0, 0, 0); // JST 正午基準
-      const diamondEvents =
-        await this.astronomicalCalculator.calculateDiamondSkytree(date, [
-          locationTyped,
-        ]);
-      const pearlEvents = await this.astronomicalCalculator.calculatePearlSkytree(
-        date,
-        [locationTyped],
-      );
-      const events = [...diamondEvents, ...pearlEvents];
-
-      // データベースに保存
-      const savedEvents = await Promise.all(
-        events.map((event) =>
-          // prisma.locationEvent.create - テーブルが存在しないため無効化
-prisma.locationEvent.create({
-            data: {
-              locationId: event.location.id,
-              eventDate: this.createJstDateOnly(event.time),
-              eventTime: event.time,
-              azimuth: event.azimuth || 0,
-              altitude: event.elevation || 0,
-              qualityScore: this.getQualityScore(event.accuracy),
-              moonPhase: event.moonPhase || null,
-              moonIllumination: event.moonIllumination || null,
-              calculationYear: year,
-              eventType: this.getEventType(event),
-              accuracy: this.mapAccuracy(event.accuracy),
-            },
-          }),
-        ),
+        data,
       );
 
       const endTime = Date.now();
@@ -432,13 +361,13 @@ prisma.locationEvent.create({
         year,
         month,
         day,
-        totalEvents: savedEvents.length,
+        totalEvents: insertedCount,
         timeMs: endTime - startTime,
       });
 
       return {
         success: true,
-        totalEvents: savedEvents.length,
+        totalEvents: insertedCount,
         timeMs: endTime - startTime,
       };
     } catch (error) {
@@ -504,41 +433,24 @@ prisma.locationEvent.create({
         status: location.status as Location['status'],
       };
 
-      // 既存データを削除
-      await prisma.locationEvent.deleteMany({
-        where: {
-          locationId: locationId,
-          calculationYear: year,
-        },
-      });
-
       // 年間イベントを計算
       const events =
         await this.astronomicalCalculator.calculateLocationYearlyEvents(
           locationTyped,
           year,
+          "strict",
         );
 
-      // データベースに保存
-      const savedEvents = await Promise.all(
-        events.map((event: SkytreeEvent) =>
-          // prisma.locationEvent.create - テーブルが存在しないため無効化
-prisma.locationEvent.create({
-            data: {
-              locationId: event.location.id,
-              eventDate: this.createJstDateOnly(event.time),
-              eventTime: event.time,
-              azimuth: event.azimuth || 0,
-              altitude: event.elevation || 0,
-              qualityScore: this.getQualityScore(event.accuracy),
-              moonPhase: event.moonPhase || null,
-              moonIllumination: event.moonIllumination || null,
-              calculationYear: year,
-              eventType: this.getEventType(event),
-              accuracy: this.mapAccuracy(event.accuracy),
-            },
-          }),
-        ),
+      const data = events.map((event: SkytreeEvent) =>
+        this.createCacheRecord(event, year, true),
+      );
+      const { insertedCount } = await this.replaceCacheData(
+        year,
+        {
+          locationId: locationId,
+          calculationYear: year,
+        },
+        data,
       );
 
       const endTime = Date.now();
@@ -546,13 +458,13 @@ prisma.locationEvent.create({
       this.logger.info("地点キャッシュ生成完了", {
         locationId,
         year,
-        totalEvents: savedEvents.length,
+        totalEvents: insertedCount,
         timeMs: endTime - startTime,
       });
 
       return {
         success: true,
-        totalEvents: savedEvents.length,
+        totalEvents: insertedCount,
         timeMs: endTime - startTime,
       };
     } catch (error) {
@@ -562,6 +474,61 @@ prisma.locationEvent.create({
       });
       throw error;
     }
+  }
+
+  private createCacheRecord(
+    event: SkytreeEvent,
+    year: number,
+    nullMissingMoonValues = false,
+  ): Prisma.LocationEventCreateManyInput {
+    return {
+      locationId: event.location.id,
+      eventDate: this.createJstDateOnly(event.time),
+      eventTime: event.time,
+      azimuth: event.azimuth || 0,
+      altitude: event.elevation || 0,
+      qualityScore: this.getQualityScore(event.accuracy),
+      moonPhase: nullMissingMoonValues ? event.moonPhase || null : event.moonPhase,
+      moonIllumination: nullMissingMoonValues
+        ? event.moonIllumination || null
+        : event.moonIllumination,
+      calculationYear: year,
+      eventType: this.getEventType(event),
+      accuracy: this.mapAccuracy(event.accuracy),
+    };
+  }
+
+  private async replaceCacheData(
+    year: number,
+    where: Prisma.LocationEventWhereInput,
+    data: Prisma.LocationEventCreateManyInput[],
+  ): Promise<{ deletedCount: number; insertedCount: number }> {
+    return prisma.$transaction(async (transaction) => {
+      await transaction.$queryRaw`
+        SELECT pg_advisory_xact_lock(
+          ${EVENT_CACHE_REBUILD_LOCK_NAMESPACE}::integer,
+          ${year}::integer
+        )::text
+      `;
+
+      const { count: deletedCount } = await transaction.locationEvent.deleteMany({
+        where,
+      });
+      let insertedCount = 0;
+
+      for (
+        let offset = 0;
+        offset < data.length;
+        offset += EVENT_CACHE_INSERT_BATCH_SIZE
+      ) {
+        const result = await transaction.locationEvent.createMany({
+          data: data.slice(offset, offset + EVENT_CACHE_INSERT_BATCH_SIZE),
+        });
+        insertedCount += result.count;
+      }
+
+      return { deletedCount, insertedCount };
+    });
   }
 
   /**
