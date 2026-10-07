@@ -1,5 +1,5 @@
 import { Queue, Worker, Job } from "bullmq";
-import IORedis from "ioredis";
+import { Redis } from "ioredis";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
 import { EventService } from "./interfaces/EventService.js";
 import { QueueService as IQueueService } from "./interfaces/QueueService.js";
@@ -19,7 +19,7 @@ const logger = getComponentLogger("queue-service");
  * 依存注入パターンを使用して循環依存を解消
  */
 export class QueueService implements IQueueService {
-  private redis: IORedis | null = null;
+  private redis: Redis | null = null;
   private eventCalculationQueue: Queue | null = null;
   private worker: Worker | null = null;
   private eventService: EventService | null = null;
@@ -78,7 +78,7 @@ export class QueueService implements IQueueService {
       lazyConnect: false, // 即座に接続を確立
     };
 
-    this.redis = new IORedis(redisConfig);
+    this.redis = new Redis(redisConfig);
 
     // Redis 接続エラーハンドリング
     this.redis.on("error", (error) => {
