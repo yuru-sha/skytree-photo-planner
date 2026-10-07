@@ -64,7 +64,7 @@ export const Toast: React.FC<ToastProps> = ({ toast, onRemove }) => {
       className={`
         ${colors.bg} ${colors.border}
         max-w-sm w-full shadow-lg rounded-lg pointer-events-auto
-        ring-1 ring-black ring-opacity-5 overflow-hidden
+        ring-1 ring-black/5 overflow-hidden
         transform transition-all duration-300 ease-in-out
         animate-slide-in-right
       `}

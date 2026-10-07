@@ -1,5 +1,5 @@
 import { prisma } from "../database/prisma.js";
-import type { Prisma } from "@prisma/client";
+import type { Prisma } from "../generated/prisma/client.js";
 import { SkytreeAstronomicalCalculator } from "./SkytreeAstronomicalCalculator.js";
 import { Location } from "@skytree-photo-planner/types";
 import { SkytreeEvent } from "@skytree-photo-planner/types";

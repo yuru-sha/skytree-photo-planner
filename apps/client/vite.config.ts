@@ -38,35 +38,36 @@ export default defineConfig({
   build: {
     outDir: "dist",
     sourcemap: true,
-    // Performance: Optimize bundle splitting
-    rollupOptions: {
+    rolldownOptions: {
       output: {
-        manualChunks: {
-          // Core React libraries (最も安定、キャッシュ効率最大)
-          'react-vendor': ['react', 'react-dom'],
-          // ルーティング（React とは分離でより効率的キャッシュ）
-          'router-vendor': ['react-router-dom'],
-          // 地図関連（大容量、遅延ローディング対象）
-          'map-vendor': ['leaflet', 'react-leaflet'],
-          // UI コンポーネント（頻繁更新される可能性）
-          'ui-vendor': ['@headlessui/react', 'lucide-react'],
-          // 内部パッケージ（開発時に変更される可能性が高い）
-          'internal-vendor': [
-            '@skytree-photo-planner/types',
-            '@skytree-photo-planner/ui', 
-            '@skytree-photo-planner/utils'
+        codeSplitting: {
+          groups: [
+            {
+              name: "react-vendor",
+              test: /node_modules\/(react|react-dom)\//,
+            },
+            {
+              name: "router-vendor",
+              test: /node_modules\/react-router-dom\//,
+            },
+            {
+              name: "map-vendor",
+              test: /node_modules\/(leaflet|react-leaflet)\//,
+            },
+            {
+              name: "ui-vendor",
+              test: /node_modules\/(@headlessui\/react|lucide-react)\//,
+            },
+            {
+              name: "internal-vendor",
+              test: /packages\/(types|ui|utils)\//,
+            },
+            {
+              name: "admin",
+              test: /src\/(pages\/AdminPage|components\/admin\/(AdminLayout|Dashboard|LocationManager|QueueManager|SystemSettingsManager))\.tsx$/,
+            },
           ],
-          // 管理画面（遅延ローディング対象）
-          'admin': [
-            './src/pages/AdminPage.tsx',
-            './src/components/admin/AdminLayout.tsx',
-            './src/components/admin/Dashboard.tsx',
-            './src/components/admin/LocationManager.tsx',
-            './src/components/admin/QueueManager.tsx',
-            './src/components/admin/SystemSettingsManager.tsx'
-          ]
         },
-        // Optimize chunk file names
         chunkFileNames: 'assets/[name]-[hash].js',
         entryFileNames: 'assets/[name]-[hash].js',
         assetFileNames: 'assets/[name]-[hash].[ext]'
