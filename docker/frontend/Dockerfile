@@ -1,5 +1,5 @@
 # フロントエンド専用 Dockerfile（モノレポ対応）
-FROM node:18-slim AS builder
+FROM node:26.10.0-slim AS builder
 
 # 必要なパッケージをインストール
 RUN apt-get update && apt-get install -y \
