@@ -83,7 +83,9 @@ const LocationDetailPage: React.FC = () => {
                   elevation = elevationData.elevation || 0;
                 }
               } catch (elevationError) {
-                logger.warn('標高データ取得エラー', elevationError as Error);
+                logger.warn('標高データ取得エラー', {
+                  error: elevationError instanceof Error ? elevationError.message : String(elevationError),
+                });
               }
               
               const virtualLocation: Location = {

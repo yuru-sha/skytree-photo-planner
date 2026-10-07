@@ -33,7 +33,7 @@ export class Bootstrap {
     // BackgroundJobScheduler を初期化（本番環境でのみ開始）
     try {
       const { BackgroundJobScheduler } = await import(
-        "./services/BackgroundJobScheduler"
+        "./services/BackgroundJobScheduler.js"
       );
       const backgroundJobScheduler = new BackgroundJobScheduler(container);
       

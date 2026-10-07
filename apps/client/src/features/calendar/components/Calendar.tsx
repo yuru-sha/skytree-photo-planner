@@ -135,7 +135,7 @@ const Calendar: React.FC<CalendarProps> = memo(
 
     const getEventIcon = (
       eventType?: "diamond" | "pearl" | "both",
-    ): JSX.Element | string => {
+    ): React.JSX.Element | string => {
       switch (eventType) {
         case "diamond":
           return <Sun className={`${styles.eventIcon} text-orange-500`} />;
