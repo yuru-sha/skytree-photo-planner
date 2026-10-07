@@ -31,7 +31,7 @@ jobs:
           node-version: 26.10.0
           cache: npm
       - name: Refresh lockfile
-        run: npm install --package-lock-only
+        run: npm install --package-lock-only --legacy-peer-deps
       - name: Verify clean install
         run: npm ci
       - name: Commit lockfile
