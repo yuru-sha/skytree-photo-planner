@@ -1,7 +1,7 @@
 name: Refresh dependency lockfile
 on:
   push:
-    branches: [chore/issue-29-typescript-7]
+    branches: [chore/issue-57-typescript-side-by-side]
 permissions:
   contents: write
 jobs:
@@ -24,9 +24,16 @@ jobs:
           git add package-lock.json
           git diff --cached --quiet || git commit -m "chore: refresh package lockfile"
           git push
+      - name: Verify TypeScript compiler
+        run: |
+          ./node_modules/.bin/tsc --version
+          test "$(./node_modules/.bin/tsc --version)" = "Version 7.0.2"
       - run: npm run build:packages
       - run: npm run typecheck
+      - run: npm run test
+      - run: npm run lint
       - run: npm run build
+      - run: npm run check-circular
       - name: Remove helper workflow
         run: |
           git rm .github/workflows/refresh-lockfile.yml
