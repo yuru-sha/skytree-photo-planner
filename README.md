@@ -143,7 +143,7 @@ skytree-photo-planner/
 
 ### Prerequisites
 - Docker & Docker Compose v2 **Recommended**
-- Node.js 18+ (for initial setup only)
+- Node.js 26.10.0+ (for initial setup only)
 
 ### Environment Configuration
 
