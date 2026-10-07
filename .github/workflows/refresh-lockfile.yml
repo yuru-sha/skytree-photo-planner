@@ -1,13 +1,9 @@
 name: Refresh dependency lockfile
-
 on:
   push:
-    branches:
-      - chore/issue-17-tailwind-v4
-
+    branches: [chore/issue-17-tailwind-v4]
 permissions:
   contents: write
-
 jobs:
   refresh-lockfile:
     runs-on: ubuntu-latest
@@ -19,7 +15,8 @@ jobs:
         with:
           node-version: 26.10.0
           cache: npm
-      - run: npm install
+      - run: rm -rf node_modules package-lock.json && npm install
+      - run: npm run build:packages
       - run: npm run build:client
       - name: Commit generated lockfile and remove helper workflow
         run: |
