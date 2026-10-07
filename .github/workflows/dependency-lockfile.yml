@@ -17,6 +17,7 @@ on:
 
 permissions:
   contents: write
+  actions: write
 
 concurrency:
   group: dependency-lockfile-${{ github.ref }}
@@ -39,9 +40,21 @@ jobs:
       - name: Verify clean install
         run: npm ci
       - name: Commit lockfile
+        id: commit-lockfile
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add package-lock.json
-          git diff --cached --quiet || git commit -m "chore: refresh package lockfile"
-          git push
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          else
+            git commit -m "chore: refresh package lockfile"
+            git push
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Dispatch dependency analysis
+        if: steps.commit-lockfile.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TARGET_BRANCH: ${{ github.event_name == 'workflow_dispatch' && inputs.target_branch || github.ref_name }}
+        run: gh workflow run dependency-check.yml --ref "$TARGET_BRANCH"
