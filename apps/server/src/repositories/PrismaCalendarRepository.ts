@@ -1,4 +1,4 @@
-import { LocationEvent, Location as PrismaLocation } from '@prisma/client';
+import { LocationEvent, Location as PrismaLocation } from "../generated/prisma/client.js";
 import { Location, SkytreeEvent, CalendarStats } from "@skytree-photo-planner/types";
 import { getComponentLogger } from "@skytree-photo-planner/utils";
 import { CalendarRepository } from "./interfaces/CalendarRepository.js";
