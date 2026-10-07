@@ -687,7 +687,7 @@ export function setupRoutes(app: Express, container: DIContainer): void {
 
   // SPA 用のフォールバック（本番環境）
   if (process.env.NODE_ENV === "production") {
-    app.get("*", (req: Request, res: Response) => {
+    app.get("/{*splat}", (req: Request, res: Response) => {
       const indexPath = path.join(
         __dirname,
         "../../../apps/client/dist/index.html",

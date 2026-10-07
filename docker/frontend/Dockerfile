@@ -16,6 +16,7 @@ COPY package*.json ./
 
 # workspaces 設定をコピー
 COPY apps/client/package.json ./apps/client/
+COPY apps/server/package.json ./apps/server/
 COPY packages/types/package.json ./packages/types/
 COPY packages/utils/package.json ./packages/utils/
 COPY packages/ui/package.json ./packages/ui/

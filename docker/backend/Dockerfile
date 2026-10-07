@@ -34,17 +34,15 @@ RUN npm cache clean --force && \
 # 全ソースコードをコピー
 COPY . .
 
-# Prisma クライアントを生成
-RUN npx prisma generate
 
 # 共有パッケージをビルド
 RUN npm run build --workspace=packages/types
 RUN npm run build --workspace=packages/utils
 RUN npm run build --workspace=packages/ui
+RUN npm run build --workspace=apps/server
 
 # 基本環境変数設定
 ENV NODE_ENV=production
-ENV TS_NODE_TRANSPILE_ONLY=true
 
 # ログディレクトリを作成
 RUN mkdir -p /app/logs && chown -R skytree-photo-planner:nodejs /app
@@ -69,7 +67,7 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
   CMD curl -f http://localhost:3000/api/health || exit 1
 
 # API サーバーを起動
-CMD ["npx", "ts-node", "--project", "apps/server/tsconfig.json", "apps/server/src/server.ts"]
+CMD ["node", "apps/server/dist/server.js"]
 
 # ===== ワーカー用ステージ =====
 FROM base AS worker
@@ -82,4 +80,4 @@ HEALTHCHECK --interval=30s --timeout=5s --start-period=30s --retries=3 \
   CMD pgrep -f "worker" || exit 1
 
 # ワーカープロセスを起動
-CMD ["npx", "ts-node", "--project", "apps/server/tsconfig.json", "apps/server/src/worker.ts"]
+CMD ["node", "apps/server/dist/worker.js"]
