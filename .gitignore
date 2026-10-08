@@ -97,3 +97,7 @@ artifacts/
 !.agents/skills/verify-*/
 .omp/
 .pstack/
+
+# Playwright E2E artifacts
+playwright-report/
+test-results/
