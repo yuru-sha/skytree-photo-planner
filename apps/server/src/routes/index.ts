@@ -263,12 +263,12 @@ export function setupRoutes(app: Express, container: DIContainer): void {
     calendarController.getMonthlyCalendar.bind(calendarController),
   );
   app.get(
-    "/api/events/:date",
-    calendarController.getDayEvents.bind(calendarController),
-  );
-  app.get(
     "/api/events/upcoming",
     calendarController.getUpcomingEvents.bind(calendarController),
+  );
+  app.get(
+    "/api/events/:date",
+    calendarController.getDayEvents.bind(calendarController),
   );
   app.get(
     "/api/calendar/location/:locationId/:year",
