@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import { SkytreeEvent, CalendarResponse } from "@skytree-photo-planner/types";
 import { apiClient } from "../services/apiClient";
-import { getComponentLogger } from "@skytree-photo-planner/utils";
+import { getComponentLogger, timeUtils } from "@skytree-photo-planner/utils";
 
 const logger = getComponentLogger("useAstronomicalEvents");
 
@@ -66,7 +66,7 @@ export function useAstronomicalEvents(
   const loadDayData = useCallback(
     async (date: Date) => {
       try {
-        const dateString = date.toISOString().split("T")[0];
+        const dateString = timeUtils.formatDateString(date);
         logger.debug("日別データ取得開始", {
           date: dateString,
           selectedLocationId,
@@ -84,7 +84,7 @@ export function useAstronomicalEvents(
         });
       } catch (err: unknown) {
         logger.error("日別データ取得エラー", err, {
-          date: date.toISOString().split("T")[0],
+          date: timeUtils.formatDateString(date),
           selectedLocationId,
         });
         setDayEvents([]);
