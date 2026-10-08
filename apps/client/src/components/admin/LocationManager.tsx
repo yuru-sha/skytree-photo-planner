@@ -5,7 +5,7 @@ import { Location } from '@skytree-photo-planner/types';
 import LocationFormModal, { LocationFormData, initialFormData } from './LocationFormModal';
 import { Icon } from '@skytree-photo-planner/ui';
 import { authService } from '../../services/authService';
-import { getComponentLogger } from '@skytree-photo-planner/utils';
+import { getComponentLogger, timeUtils } from '@skytree-photo-planner/utils';
 
 const logger = getComponentLogger('LocationManager');
 
@@ -124,9 +124,10 @@ const LocationManager: React.FC<LocationManagerProps> = ({
   };
 
   const handleRecalculate = async (location: Location) => {
+    const targetYear = timeUtils.getCurrentJst().getFullYear();
     if (
       !confirm(
-        `「${location.name}」の 2025 年データを再計算しますか？\n\n 処理に時間がかかる場合があります。`,
+        `「${location.name}」の ${targetYear} 年データを再計算しますか？\n\n 処理に時間がかかる場合があります。`,
       )
     )
       return;
@@ -139,8 +140,8 @@ const LocationManager: React.FC<LocationManagerProps> = ({
           method: 'POST',
           body: JSON.stringify({
             locationId: location.id,
-            startYear: 2025,
-            endYear: 2025,
+            startYear: targetYear,
+            endYear: targetYear,
             priority: 'high',
           }),
         },
