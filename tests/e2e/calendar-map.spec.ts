@@ -32,6 +32,6 @@ test("map search opens with instructions before a location is selected", async (
   await page.route("**/api/**", (route) => route.fulfill({ json: { locations: [], events: [] } }));
   await page.goto("/map-search");
   await expect(page.getByRole("heading", { name: "地図検索" })).toBeVisible();
-  await expect(page.getByText("まだ検索していません。サイドバーの検索条件を入力し、検索を実行してください。")).toBeVisible();
+  await expect(page.getByText("住所検索または地図をクリックして地点を指定")).toBeVisible();
   await expect(page.getByText("検索条件を設定", { exact: true }).first()).toBeVisible();
 });
