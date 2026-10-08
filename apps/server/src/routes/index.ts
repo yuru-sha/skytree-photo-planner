@@ -256,18 +256,6 @@ export function setupRoutes(app: Express, container: DIContainer): void {
     "/api/locations/:id",
     locationController.getLocation.bind(locationController),
   );
-  app.post(
-    "/api/locations",
-    locationController.createLocation.bind(locationController),
-  );
-  app.put(
-    "/api/locations/:id",
-    locationController.updateLocation.bind(locationController),
-  );
-  app.delete(
-    "/api/locations/:id",
-    locationController.deleteLocation.bind(locationController),
-  );
 
   // イベント API
   app.get(
