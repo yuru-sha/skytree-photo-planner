@@ -5,6 +5,9 @@ import { getComponentLogger } from "@skytree-photo-planner/utils";
 const getRouteParam = (value: string | string[]): string =>
   Array.isArray(value) ? (value[0] ?? "") : value;
 
+const MIN_CALENDAR_YEAR = 2020;
+const MAX_CALENDAR_YEAR = 2100;
+
 export class CalendarController {
   private logger = getComponentLogger("calendar-controller");
 
@@ -27,10 +30,10 @@ export class CalendarController {
         });
       }
 
-      if (year < 2020 || year > 2030) {
+      if (year < MIN_CALENDAR_YEAR || year > MAX_CALENDAR_YEAR) {
         return res.status(400).json({
           error: "Invalid year range",
-          message: "年は 2020 年から 2030 年の範囲で指定してください。",
+          message: `年は ${MIN_CALENDAR_YEAR} 年から ${MAX_CALENDAR_YEAR} 年の範囲で指定してください。`,
         });
       }
 
@@ -154,10 +157,10 @@ export class CalendarController {
         });
       }
 
-      if (year < 2020 || year > 2030) {
+      if (year < MIN_CALENDAR_YEAR || year > MAX_CALENDAR_YEAR) {
         return res.status(400).json({
           error: "Invalid year range",
-          message: "年は 2020 年から 2030 年の範囲で指定してください。",
+          message: `年は ${MIN_CALENDAR_YEAR} 年から ${MAX_CALENDAR_YEAR} 年の範囲で指定してください。`,
         });
       }
 
@@ -205,10 +208,10 @@ export class CalendarController {
         });
       }
 
-      if (year < 2020 || year > 2030) {
+      if (year < MIN_CALENDAR_YEAR || year > MAX_CALENDAR_YEAR) {
         return res.status(400).json({
           error: "Invalid year range",
-          message: "年は 2020 年から 2030 年の範囲で指定してください。",
+          message: `年は ${MIN_CALENDAR_YEAR} 年から ${MAX_CALENDAR_YEAR} 年の範囲で指定してください。`,
         });
       }
 
