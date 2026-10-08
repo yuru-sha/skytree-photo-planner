@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { SkytreeEvent, CalendarResponse } from "@skytree-photo-planner/types";
 import { apiClient } from "../services/apiClient";
 import { getComponentLogger, timeUtils } from "@skytree-photo-planner/utils";
@@ -37,9 +37,12 @@ export function useAstronomicalEvents(
   const [dayEvents, setDayEvents] = useState<SkytreeEvent[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const calendarRequestId = useRef(0);
+  const dayRequestId = useRef(0);
 
   // カレンダーデータを取得
   const loadCalendarData = useCallback(async () => {
+    const requestId = ++calendarRequestId.current;
     setLoading(true);
     setError(null);
 
@@ -47,6 +50,7 @@ export function useAstronomicalEvents(
       logger.debug("カレンダーデータを取得開始", { year, month });
       const response = await apiClient.getMonthlyCalendar(year, month);
 
+      if (requestId !== calendarRequestId.current) return;
       setCalendarData(response);
       logger.info("カレンダーデータ取得成功", {
         year,
@@ -56,15 +60,16 @@ export function useAstronomicalEvents(
     } catch (err: unknown) {
       const errorMessage = `カレンダーデータの取得に失敗しました: ${err instanceof Error ? err.message : String(err)}`;
       logger.error("カレンダーデータ取得エラー", err, { year, month });
-      setError(errorMessage);
+      if (requestId === calendarRequestId.current) setError(errorMessage);
     } finally {
-      setLoading(false);
+      if (requestId === calendarRequestId.current) setLoading(false);
     }
   }, [year, month]);
 
   // 選択日のイベントと天気情報を取得
   const loadDayData = useCallback(
     async (date: Date) => {
+      const requestId = ++dayRequestId.current;
       try {
         const dateString = timeUtils.formatDateString(date);
         logger.debug("日別データ取得開始", {
@@ -75,6 +80,7 @@ export function useAstronomicalEvents(
 
         // 日別イベント取得
         const eventsResponse = await apiClient.getDayEvents(dateString);
+        if (requestId !== dayRequestId.current) return;
         setDayEvents(eventsResponse.events || []);
 
 
@@ -87,7 +93,7 @@ export function useAstronomicalEvents(
           date: timeUtils.formatDateString(date),
           selectedLocationId,
         });
-        setDayEvents([]);
+        if (requestId === dayRequestId.current) setDayEvents([]);
       }
     },
     [selectedLocationId, selectedEventId],
@@ -103,16 +109,19 @@ export function useAstronomicalEvents(
 
   // カレンダーデータの初期読み込み
   useEffect(() => {
-    loadCalendarData();
+    void loadCalendarData();
+    return () => { calendarRequestId.current += 1; };
   }, [loadCalendarData]);
 
   // 選択日変更時の日別データ読み込み
   useEffect(() => {
     if (selectedDate) {
-      loadDayData(selectedDate);
+      void loadDayData(selectedDate);
     } else {
+      dayRequestId.current += 1;
       setDayEvents([]);
     }
+    return () => { dayRequestId.current += 1; };
   }, [selectedDate, loadDayData]);
 
   return {
