@@ -18,7 +18,7 @@ export default defineConfig({
   },
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], locale: "ja-JP", timezoneId: "Asia/Tokyo" } }],
   webServer: {
-    command: "npm run dev:client -- --host 127.0.0.1 --port 5173 --strictPort",
+    command: "cd apps/client && ../../node_modules/.bin/vite --host 127.0.0.1 --port 5173 --strictPort",
     url: baseURL,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
