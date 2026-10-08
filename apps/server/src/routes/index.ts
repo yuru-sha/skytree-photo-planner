@@ -295,10 +295,18 @@ export function setupRoutes(app: Express, container: DIContainer): void {
         } = req.body;
 
         // バリデーション
-        if (!latitude || !longitude || !startDate || !endDate) {
+        const lat = typeof latitude === "number" ? latitude : NaN;
+        const lng = typeof longitude === "number" ? longitude : NaN;
+        const altitude = elevation === undefined ? 0 : elevation;
+        if (
+          !Number.isFinite(lat) || lat < -90 || lat > 90 ||
+          !Number.isFinite(lng) || lng < -180 || lng > 180 ||
+          typeof altitude !== "number" || !Number.isFinite(altitude) ||
+          typeof startDate !== "string" || typeof endDate !== "string"
+        ) {
           return res.status(400).json({
             success: false,
-            message: "緯度、経度、開始日、終了日は必須です",
+            message: "有効な緯度、経度、標高、開始日、終了日を指定してください",
           });
         }
 
@@ -306,6 +314,12 @@ export function setupRoutes(app: Express, container: DIContainer): void {
         const start = new Date(startDate);
         const end = new Date(endDate);
         const daysDiff = (end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24);
+        if (!Number.isFinite(daysDiff) || daysDiff < 0) {
+          return res.status(400).json({
+            success: false,
+            message: "有効な日付範囲を開始日から終了日の順に指定してください",
+          });
+        }
         
         // 最大範囲制限（全モード共通: 3 年）
         if (daysDiff > 1095) { // 3 年 = 365 * 3
