@@ -256,18 +256,6 @@ export function setupRoutes(app: Express, container: DIContainer): void {
     "/api/locations/:id",
     locationController.getLocation.bind(locationController),
   );
-  app.post(
-    "/api/locations",
-    locationController.createLocation.bind(locationController),
-  );
-  app.put(
-    "/api/locations/:id",
-    locationController.updateLocation.bind(locationController),
-  );
-  app.delete(
-    "/api/locations/:id",
-    locationController.deleteLocation.bind(locationController),
-  );
 
   // イベント API
   app.get(
@@ -595,6 +583,12 @@ export function setupRoutes(app: Express, container: DIContainer): void {
 
   // 管理者用 API（認証必須）
   app.get(
+    "/api/admin/locations/export",
+    adminApiRateLimit,
+    authenticateAdmin,
+    locationController.exportLocations.bind(locationController),
+  );
+  app.get(
     "/api/admin/locations",
     authenticateAdmin,
     locationController.getLocations.bind(locationController),
@@ -623,12 +617,6 @@ export function setupRoutes(app: Express, container: DIContainer): void {
     locationController.deleteLocation.bind(locationController),
   );
   // Export/Import 機能
-  app.get(
-    "/api/admin/locations/export",
-    adminApiRateLimit,
-    authenticateAdmin,
-    locationController.exportLocations.bind(locationController),
-  );
   app.post(
     "/api/admin/locations/import",
     adminApiRateLimit,
