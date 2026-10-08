@@ -324,6 +324,7 @@ export class AuthServiceImpl implements AuthService {
 
       // パスワード更新
       await this.authRepository.updateAdminPassword(adminId, newPasswordHash);
+      await this.authRepository.revokeAllRefreshTokens(adminId);
 
       logger.info("パスワード変更成功", { adminId });
 
