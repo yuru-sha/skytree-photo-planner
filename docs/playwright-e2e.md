@@ -32,8 +32,8 @@ not enabled in regular CI.
 
 ## Scope
 
-CI covers navigation, login form rendering, failed-login feedback, calendar
-month-selection races with deliberately out-of-order monthly API responses, and
-an optional real-backend authorization boundary check. It does **not** claim to
-cover authenticated administrator CRUD, scheduling or actual astronomy
-calculations. Those require isolated fixture data and dedicated backend setup.
+CI covers navigation, login form rendering, failed-login feedback, and
+out-of-order monthly and daily calendar responses. An optional real-backend
+authorization boundary check is also available. CI does **not** cover
+authenticated administrator CRUD, scheduling or actual astronomy calculations.
+Those require isolated fixture data and dedicated backend setup.
