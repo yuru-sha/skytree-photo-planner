@@ -1,4 +1,5 @@
 import { expect, test } from "playwright/test";
+import type { Page } from "playwright/test";
 
 test("calendar keeps the latest month data when an older request finishes last", async ({ page }) => {
   let releaseStaleResponse!: () => void;
@@ -207,4 +208,104 @@ test("map search opens with instructions before a location is selected", async (
   await expect(page.getByRole("heading", { name: "地図検索" })).toBeVisible();
   await expect(page.getByText("住所検索または地図をクリックして地点を指定")).toBeVisible();
   await expect(page.getByText("検索条件を設定", { exact: true }).first()).toBeVisible();
+});
+
+const mapSearchResponse = {
+  success: true,
+  events: [
+    {
+      id: "map-search-fixture",
+      type: "pearl",
+      subType: "rising",
+      time: "2027-06-15T20:30:00.000Z",
+      azimuth: 90,
+      elevation: 12.5,
+      accuracy: "excellent",
+      qualityScore: 95,
+    },
+  ],
+  searchParams: {},
+  metadata: { totalEvents: 1, searchInterval: 60, isLimited: false, originalTotal: 1 },
+};
+
+const selectMapLocation = async (page: Page) => {
+  await page.goto("/map-search");
+  const map = page.locator(".leaflet-container");
+  await expect(map).toBeVisible();
+  const bounds = await map.boundingBox();
+  if (!bounds) throw new Error("Leaflet map is not visible");
+  await map.click({ position: { x: bounds.width / 2, y: bounds.height / 2 } });
+  await expect(page.getByRole("heading", { name: "撮影地データ" })).toBeVisible();
+  await expect(page.getByText("テスト住所", { exact: true })).toHaveCount(2);
+  const coordinateValues = page.locator(".grid.grid-cols-4").filter({ hasText: "緯度:" }).locator(".font-medium");
+  const latitudeText = await coordinateValues.nth(0).textContent();
+  const longitudeText = await coordinateValues.nth(1).textContent();
+  await page.locator('input[type="number"]').fill("123.4");
+  return {
+    latitude: Number(latitudeText?.replace("°", "")),
+    longitude: Number(longitudeText?.replace("°", "")),
+  };
+};
+
+const stubMapSearchDependencies = async (page: Page) => {
+  await page.route("https://cyberjapandata.gsi.go.jp/**", (route) => route.abort());
+  await page.route("https://raw.githubusercontent.com/**", (route) => route.abort());
+  await page.route("https://cdnjs.cloudflare.com/**", (route) => route.abort());
+  await page.route("https://mreversegeocoder.gsi.go.jp/**", (route) =>
+    route.fulfill({ json: { results: [{ address: "テスト住所" }] } }),
+  );
+
+};
+
+test("map click searches with selected location, filters, and ISO dates", async ({ page }) => {
+  await stubMapSearchDependencies(page);
+  let requestBody: Record<string, unknown> | undefined;
+  await page.route("**/api/map-search", async (route) => {
+    requestBody = route.request().postDataJSON();
+    await route.fulfill({ json: mapSearchResponse });
+  });
+
+  const coordinates = await selectMapLocation(page);
+  await page.locator("select").nth(0).selectOption("pearl");
+  await page.locator("select").nth(1).selectOption("precise");
+  await page.locator('input[type="date"]').nth(0).fill("2027-06-01");
+  await page.locator('input[type="date"]').nth(1).fill("2027-06-30");
+  await page.getByRole("button", { name: "検索実行" }).click();
+
+  await expect(page.getByText("検索結果 (1/1件)")).toBeVisible();
+  await expect(page.getByText("昇るパールスカイツリー", { exact: true })).toBeVisible();
+  expect(requestBody).toEqual({
+    latitude: coordinates.latitude,
+    longitude: coordinates.longitude,
+    elevation: 123.4,
+    scene: "pearl",
+    searchMode: "precise",
+    startDate: "2027-06-01T00:00:00.000Z",
+    endDate: "2027-06-30T00:00:00.000Z",
+  });
+});
+
+test("map search displays empty results", async ({ page }) => {
+  await stubMapSearchDependencies(page);
+  await page.route("**/api/map-search", (route) =>
+    route.fulfill({
+      json: {
+        ...mapSearchResponse,
+        events: [],
+        metadata: { ...mapSearchResponse.metadata, totalEvents: 0, originalTotal: 0 },
+      },
+    }),
+  );
+  await selectMapLocation(page);
+  await page.getByRole("button", { name: "検索実行" }).click();
+  await expect(page.getByText("検索結果がありません")).toBeVisible();
+  await expect(page.getByText("指定した条件でダイヤモンド・パールスカイツリーのイベントが見つかりませんでした。")).toBeVisible();
+});
+
+test("map search displays its empty-results UI after an API failure", async ({ page }) => {
+  await stubMapSearchDependencies(page);
+  await page.route("**/api/map-search", (route) => route.fulfill({ status: 500, json: { message: "fixture failure" } }));
+  await selectMapLocation(page);
+  await page.getByRole("button", { name: "検索実行" }).click();
+  await expect(page.getByText("検索結果がありません")).toBeVisible();
 });
