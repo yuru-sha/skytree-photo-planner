@@ -86,6 +86,7 @@ data/*
 !data/.gitkeep
 
 /generated/prisma
+/apps/server/src/generated/
 
 # Local verification proof artifacts (not committed).
 artifacts/

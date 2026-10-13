@@ -35,7 +35,8 @@
     "performance-budget": "node scripts/performance/performance-budget.js",
     "performance-check": "npm run analyze-bundle && npm run performance-budget && npm run analyze-deps",
     "test:e2e": "playwright test",
-    "test:e2e:ui": "playwright test --ui"
+    "test:e2e:ui": "playwright test --ui",
+    "test:e2e:integration": "playwright test --config=playwright.integration.config.ts"
   },
   "keywords": [
     "fuji",

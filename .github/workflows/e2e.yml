@@ -32,3 +32,75 @@ jobs:
             playwright-report/
             test-results/
           retention-days: 7
+  authenticated-admin-integration:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: e2e
+          POSTGRES_PASSWORD: e2e-ci-postgres-only
+          POSTGRES_DB: skytree_e2e_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U e2e -d skytree_e2e_test"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+    env:
+      NODE_ENV: production
+      CI: true
+      E2E_TEST_DATABASE: "1"
+      DATABASE_URL: postgresql://e2e:e2e-ci-postgres-only@127.0.0.1:5432/skytree_e2e_test
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6379
+      E2E_ADMIN_PASSWORD: e2e-ci-browser-admin-only-password
+      E2E_PASSWORD_ADMIN_PASSWORD: e2e-ci-password-admin-only-password
+      JWT_SECRET: e2e-ci-jwt-secret-do-not-use-outside-tests
+      REFRESH_SECRET: e2e-ci-refresh-secret-do-not-use-outside-tests
+      DISABLE_WORKER: "true"
+      ENABLE_BACKGROUND_SCHEDULER: "false"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "26.10.0"
+          cache: npm
+      - name: Mask test-only credentials
+        run: |
+          echo "::add-mask::$POSTGRES_PASSWORD"
+          echo "::add-mask::$E2E_ADMIN_PASSWORD"
+          echo "::add-mask::$E2E_PASSWORD_ADMIN_PASSWORD"
+          echo "::add-mask::${E2E_PASSWORD_ADMIN_PASSWORD}-changed"
+          echo "::add-mask::$JWT_SECRET"
+          echo "::add-mask::$REFRESH_SECRET"
+        env:
+          POSTGRES_PASSWORD: e2e-ci-postgres-only
+      - run: npm ci --include=dev
+      - run: npm run build:packages
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e:integration
+      - name: Redact authenticated integration artifacts
+        id: redact
+        if: always()
+        run: node scripts/testing/sanitize-e2e-artifacts.mjs
+      - name: Upload authenticated integration report
+        if: failure() && steps.redact.outcome == 'success'
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-authenticated-integration-report
+          path: |
+            playwright-report/
+            test-results/
+          retention-days: 7
