@@ -78,8 +78,8 @@ test("admin can log in, use protected routes and API, then log out", async ({ pa
   await page.goto("/admin");
   await expect(page).toHaveURL(/\/admin\/login$/);
 
-  const denied = await browserApi<Record<string, unknown>>(page, "/api/admin/locations");
-  expect([401, 403]).toContain(denied.status);
+  const denied = await page.request.get(`${apiBase}/api/admin/locations`);
+  expect([401, 403]).toContain(denied.status());
 });
 
 test("password change rejects refresh from another pre-change session", async ({ browser, playwright, page }) => {
