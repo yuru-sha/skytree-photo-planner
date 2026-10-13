@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { useLocation, useSearchParams, useNavigate } from "react-router-dom";
 import { Icon } from "@skytree-photo-planner/ui";
 import { uiLogger } from "../utils/logger";
@@ -26,6 +26,7 @@ const HomePage: React.FC = () => {
   );
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [dayEvents, setDayEvents] = useState<FujiEvent[]>([]);
+  const dayRequestId = useRef(0);
 
   const [locations, setLocations] = useState<Location[]>([]);
   const [selectedLocationId, setSelectedLocationId] = useState<
@@ -118,6 +119,7 @@ const HomePage: React.FC = () => {
 
   // カレンダーデータを取得
   useEffect(() => {
+    let isCurrentRequest = true;
     const loadCalendar = async () => {
       try {
         const response = await apiClient.getMonthlyCalendar(
@@ -138,7 +140,7 @@ const HomePage: React.FC = () => {
         
         if (response.events.length === 0) {
           uiLogger.debug("No events found for this month", { year: currentYear, month: currentMonth });
-          setCalendarData(response);
+          if (isCurrentRequest) setCalendarData(response);
           return;
         }
         
@@ -162,13 +164,16 @@ const HomePage: React.FC = () => {
           types: firstCalendarEvents.map(e => e.type)
         });
         
-        setCalendarData(response);
+        if (isCurrentRequest) setCalendarData(response);
       } catch (error) {
         uiLogger.error("Failed to load calendar:", error as Error);
       }
     };
 
     loadCalendar();
+    return () => {
+      isCurrentRequest = false;
+    };
   }, [currentYear, currentMonth]);
 
   // 撮影地点を取得
@@ -224,6 +229,7 @@ const HomePage: React.FC = () => {
 
   // 日付選択ハンドラー
   const handleDateClick = async (date: Date) => {
+    const requestId = ++dayRequestId.current;
     setSelectedDate(date);
     setIsDateSearchLoading(true);
 
@@ -242,6 +248,7 @@ const HomePage: React.FC = () => {
         apiClient.getDayEvents(dateString),
         new Promise(resolve => setTimeout(resolve, 1000))
       ]);
+      if (requestId !== dayRequestId.current) return;
       
       uiLogger.debug("日付検索完了", { 
         date: dateString, 
@@ -286,10 +293,10 @@ const HomePage: React.FC = () => {
 
     } catch (error) {
       uiLogger.error("Failed to load day events:", error as Error);
-      setDayEvents([]);
+      if (requestId === dayRequestId.current) setDayEvents([]);
 
     } finally {
-      setIsDateSearchLoading(false);
+      if (requestId === dayRequestId.current) setIsDateSearchLoading(false);
     }
   };
 
