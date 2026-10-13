@@ -32,8 +32,8 @@ not enabled in regular CI.
 
 ## Scope
 
-CI covers navigation, login form rendering, failed-login feedback, and
-out-of-order monthly and daily calendar responses. An optional real-backend
-authorization boundary check is also available. CI does **not** cover
-authenticated administrator CRUD, scheduling or actual astronomy calculations.
-Those require isolated fixture data and dedicated backend setup.
+CI covers navigation, login form rendering, failed-login feedback, and out-of-order monthly and daily calendar responses. It also covers map search from Leaflet location selection through result, empty-result, and API-failure states.
+
+Map-search UI tests mock the browser API and reverse-geocoding boundary. They do not verify the live backend, map tiles, or third-party services. An optional real-backend authorization boundary check is also available.
+
+CI does **not** cover authenticated administrator CRUD, scheduling, or actual astronomy calculations. Those require isolated fixture data and dedicated backend setup.
