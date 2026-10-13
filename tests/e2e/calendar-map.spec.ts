@@ -1,13 +1,75 @@
 import { expect, test } from "playwright/test";
 
-test("rapid calendar month changes keep the last selected month visible", async ({ page }) => {
-  const calendarRequests: string[] = [];
+test("calendar keeps the latest month data when an older request finishes last", async ({ page }) => {
+  let releaseStaleResponse!: () => void;
+  let staleRequestStarted!: () => void;
+  let staleResponseCompleted!: () => void;
+  const staleStarted = new Promise<void>((resolve) => {
+    staleRequestStarted = resolve;
+  });
+  const staleCompleted = new Promise<void>((resolve) => {
+    staleResponseCompleted = resolve;
+  });
+  const staleResponseGate = new Promise<void>((resolve) => {
+    releaseStaleResponse = resolve;
+  });
+  let holdNextCalendarResponse = false;
+
   await page.route("**/api/**", async (route) => {
     const url = new URL(route.request().url());
     const match = url.pathname.match(/^\/api\/calendar\/(\d+)\/(\d+)$/);
     if (match) {
-      calendarRequests.push(`${match[1]}-${match[2]}`);
-      await route.fulfill({ json: { year: Number(match[1]), month: Number(match[2]), events: [] } });
+      const [, year, month] = match;
+      const date = `${year}-${month.padStart(2, "0")}-02T12:00:00.000Z`;
+      const event = {
+        type: "pearl",
+        subType: "rising",
+        time: date,
+        location: {
+          id: 1,
+          name: "Fixture location",
+          prefecture: "Tokyo",
+          latitude: 35.7,
+          longitude: 139.8,
+          elevation: 10,
+          azimuthToSkytree: 0,
+          elevationToSkytree: 0,
+          distanceToSkytree: 10,
+          status: "active",
+          createdAt: date,
+          updatedAt: date,
+        },
+        azimuth: 0,
+      };
+      const response = {
+        year: Number(year),
+        month: Number(month),
+        events: [{
+          date,
+          type: "pearl",
+          events: [
+            { ...event, id: `${year}-${month}-first` },
+            { ...event, id: `${year}-${month}-second` },
+          ],
+        }],
+      };
+      if (holdNextCalendarResponse) {
+        holdNextCalendarResponse = false;
+        staleRequestStarted();
+        await staleResponseGate;
+        await route.fulfill({
+          json: {
+            ...response,
+            events: [{
+              ...response.events[0],
+              events: [{ type: "pearl" }],
+            }],
+          },
+        });
+        staleResponseCompleted();
+      } else {
+        await route.fulfill({ json: response });
+      }
     } else if (url.pathname === "/api/locations") {
       await route.fulfill({ json: { locations: [] } });
     } else if (url.pathname.startsWith("/api/events/")) {
@@ -18,14 +80,23 @@ test("rapid calendar month changes keep the last selected month visible", async 
   });
 
   await page.goto("/");
-  const month = page.locator("h2").filter({ hasText: /^\d{4}年\d{1,2}月$/ });
-  await expect(month).toBeVisible();
-  const initial = await month.textContent();
-  const nextMonthButton = month.locator("..").locator("button").last();
+  const monthHeading = page.locator("h2").filter({ hasText: /^\d{4}年\d{1,2}月$/ });
+  await expect(monthHeading).toBeVisible();
+  const nextMonthButton = monthHeading.locator("..").locator("button").last();
+
+  holdNextCalendarResponse = true;
   await nextMonthButton.click();
+  await staleStarted;
+  const staleHeading = await monthHeading.textContent();
   await nextMonthButton.click();
-  await expect(month).not.toHaveText(initial ?? "");
-  await expect.poll(() => new Set(calendarRequests).size).toBeGreaterThanOrEqual(2);
+  await expect(monthHeading).not.toHaveText(staleHeading ?? "");
+  await expect(page.getByText("2件", { exact: true })).toBeVisible();
+
+  const latestHeading = await monthHeading.textContent();
+  releaseStaleResponse();
+  await staleCompleted;
+  await expect(monthHeading).toHaveText(latestHeading ?? "");
+  await expect(page.getByText("2件", { exact: true })).toBeVisible();
 });
 
 test("map search opens with instructions before a location is selected", async ({ page }) => {

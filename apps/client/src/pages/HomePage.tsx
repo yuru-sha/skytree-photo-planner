@@ -118,6 +118,7 @@ const HomePage: React.FC = () => {
 
   // カレンダーデータを取得
   useEffect(() => {
+    let isCurrentRequest = true;
     const loadCalendar = async () => {
       try {
         const response = await apiClient.getMonthlyCalendar(
@@ -138,7 +139,7 @@ const HomePage: React.FC = () => {
         
         if (response.events.length === 0) {
           uiLogger.debug("No events found for this month", { year: currentYear, month: currentMonth });
-          setCalendarData(response);
+          if (isCurrentRequest) setCalendarData(response);
           return;
         }
         
@@ -162,13 +163,16 @@ const HomePage: React.FC = () => {
           types: firstCalendarEvents.map(e => e.type)
         });
         
-        setCalendarData(response);
+        if (isCurrentRequest) setCalendarData(response);
       } catch (error) {
         uiLogger.error("Failed to load calendar:", error as Error);
       }
     };
 
     loadCalendar();
+    return () => {
+      isCurrentRequest = false;
+    };
   }, [currentYear, currentMonth]);
 
   // 撮影地点を取得
