@@ -16,7 +16,12 @@ export default defineConfig({
     trace: "retain-on-failure",
     screenshot: "only-on-failure",
   },
-  projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"], locale: "ja-JP", timezoneId: "Asia/Tokyo" } }],
+  projects: [
+    {
+      name: "chromium",
+      use: { ...devices["Desktop Chrome"], locale: "ja-JP", timezoneId: "Asia/Tokyo" },
+    },
+  ],
   webServer: {
     command: "cd apps/client && ../../node_modules/.bin/vite --host 127.0.0.1 --port 5173 --strictPort",
     url: baseURL,
