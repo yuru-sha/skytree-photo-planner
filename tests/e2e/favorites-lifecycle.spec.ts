@@ -71,16 +71,17 @@ async function mockApi(page: Page) {
       await route.fulfill({ json: { locations: [fixtureLocation, secondLocation] } });
     } else if (/^\/api\/calendar\/\d+\/\d+$/.test(pathname)) {
       const [, , , year, month] = pathname.split("/");
+      const paddedMonth = month.padStart(2, "0");
       await route.fulfill({
         json: {
           year: Number(year),
           month: Number(month),
           events: [{
-            date: `${year}-${month}-15T00:00:00.000Z`,
+            date: `${year}-${paddedMonth}-15T00:00:00.000Z`,
             type: "diamond",
             events: [
-              { ...fixtureEvent, time: `${year}-${month}-15T06:30:00.000Z` },
-              { ...secondEvent, time: `${year}-${month}-15T06:30:00.000Z` },
+              { ...fixtureEvent, time: `${year}-${paddedMonth}-15T06:30:00.000Z` },
+              { ...secondEvent, time: `${year}-${paddedMonth}-15T07:30:00.000Z` },
             ],
           }],
         },
@@ -91,7 +92,7 @@ async function mockApi(page: Page) {
         json: {
           events: [
             { ...fixtureEvent, time: `${date}T06:30:00.000Z` },
-            { ...secondEvent, time: `${date}T06:30:00.000Z` },
+            { ...secondEvent, time: `${date}T07:30:00.000Z` },
           ],
         },
       });
@@ -135,6 +136,7 @@ async function addSecondLocation(page: Page) {
   await expect(page.getByText(secondLocation.name, { exact: true })).toBeVisible();
   await page.getByText(secondLocation.name, { exact: true }).click();
   await page.getByRole("button", { name: "お気に入り", exact: true }).last().click();
+  await page.getByRole("button", { name: "予定に追加", exact: true }).click();
 }
 
 async function startApp(context: BrowserContext) {
@@ -178,23 +180,35 @@ test("favorites save from event detail, persist across navigation and reload, an
   }
 });
 
-test("individual and selected removal update saved locations and events", async ({ page }) => {
+test("individual removal updates saved locations and events", async ({ page }) => {
   await mockApi(page);
   await addFixtureFavorites(page);
   await addSecondLocation(page);
   await page.goto("/favorites");
   await page.getByRole("button", { name: /^今後のイベント \(/ }).click();
-  await page.getByRole("button", { name: "削除", exact: true }).click();
-  await expect(page.getByText("今後のお気に入りイベントはありません")).toBeVisible();
+  await page.getByRole("button", { name: "削除", exact: true }).first().click();
+  await expect(page.getByText(fixtureLocation.name, { exact: true })).toHaveCount(0);
+  await expect(page.getByText(secondLocation.name, { exact: true })).toBeVisible();
 
   await locationsTab(page);
   await expect(page.getByRole("heading", { name: /Issue 106 .* viewpoint/ })).toHaveCount(2);
   await page.getByRole("button", { name: "削除", exact: true }).first().click();
   await expect(page.getByRole("heading", { name: /Issue 106 .* viewpoint/ })).toHaveCount(1);
-  await page.getByRole("checkbox").check();
+});
+
+test("selected event removal preserves the unselected event", async ({ page }) => {
+  await mockApi(page);
+  await addFixtureFavorites(page);
+  await addSecondLocation(page);
+  await page.goto("/favorites");
+  await page.getByRole("button", { name: /^今後のイベント \(/ }).click();
+  await expect(page.getByRole("checkbox")).toHaveCount(2);
+  await page.getByRole("checkbox").first().check();
   page.once("dialog", (dialog) => dialog.accept());
   await page.getByRole("button", { name: /^選択削除/ }).click();
-  await expect(page.getByText("お気に入り地点はありません")).toBeVisible();
+  await expect(page.getByRole("checkbox")).toHaveCount(1);
+  await expect(page.getByText(fixtureLocation.name, { exact: true })).toHaveCount(0);
+  await expect(page.getByText(secondLocation.name, { exact: true })).toBeVisible();
 });
 
 test("clear-all can be canceled or confirmed", async ({ page }) => {
@@ -204,6 +218,7 @@ test("clear-all can be canceled or confirmed", async ({ page }) => {
   page.once("dialog", (dialog) => dialog.dismiss());
   await page.getByRole("button", { name: "全削除", exact: true }).click();
   await expect(page.getByText("今後の撮影イベント")).toBeVisible();
+  await expect(page.getByText(fixtureLocation.name, { exact: true })).toBeVisible();
   await locationsTab(page);
   await expect(page.getByRole("heading", { name: fixtureLocation.name })).toBeVisible();
 
