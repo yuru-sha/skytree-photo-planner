@@ -49,19 +49,11 @@ class ApiClient {
   }
 
   async getLocations(): Promise<LocationsResponse> {
-    try {
-      const response = await fetch(`${this.baseUrl}/locations`);
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      return await response.json();
-    } catch (error) {
-      apiLogger.error("Failed to fetch locations:", error as Error);
-      // フォールバック: 空のデータを返す
-      return {
-        locations: [],
-      };
+    const response = await fetch(`${this.baseUrl}/locations`);
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
+    return await response.json();
   }
 
   async getDayEvents(date: string) {
