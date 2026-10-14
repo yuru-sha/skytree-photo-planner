@@ -303,6 +303,7 @@ const CameraPanel: React.FC<CameraPanelProps> = ({
                 <button
                   onClick={() => updateSettings({ orientation: "landscape" })}
                   aria-label="横向き撮影を選択"
+                  aria-pressed={cameraSettings.orientation === "landscape"}
                   className="focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   style={{
                     padding: "0.375rem",
@@ -332,6 +333,7 @@ const CameraPanel: React.FC<CameraPanelProps> = ({
                 <button
                   onClick={() => updateSettings({ orientation: "portrait" })}
                   aria-label="縦向き撮影を選択"
+                  aria-pressed={cameraSettings.orientation === "portrait"}
                   className="focus:ring-2 focus:ring-blue-500 focus:outline-none"
                   style={{
                     padding: "0.375rem",
@@ -360,6 +362,44 @@ const CameraPanel: React.FC<CameraPanelProps> = ({
                 </button>
               </div>
             </div>
+          </div>
+
+          <div>
+            <label
+              htmlFor="camera-aspect-ratio"
+              style={{
+                fontSize: "0.7rem",
+                fontWeight: "500",
+                color: "#6b7280",
+                marginBottom: "0.25rem",
+                display: "block",
+              }}
+            >
+              アスペクト比
+            </label>
+            <select
+              id="camera-aspect-ratio"
+              value={cameraSettings.aspectRatio}
+              onChange={(e) =>
+                updateSettings({
+                  aspectRatio: e.target.value as CameraSettings["aspectRatio"],
+                })
+              }
+              style={{
+                width: "100%",
+                padding: "0.375rem",
+                fontSize: "0.75rem",
+                border: "1px solid #d1d5db",
+                borderRadius: "4px",
+                backgroundColor: "white",
+                color: "#374151",
+              }}
+            >
+              <option value="3:2">3:2</option>
+              <option value="4:3">4:3</option>
+              <option value="16:9">16:9</option>
+              <option value="1:1">1:1</option>
+            </select>
           </div>
 
           {/* センサーサイズ（単独配置） */}

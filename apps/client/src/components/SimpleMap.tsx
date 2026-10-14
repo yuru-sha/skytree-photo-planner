@@ -171,6 +171,14 @@ const SimpleMap: React.FC<SimpleMapProps> = ({
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
   const linesLayerRef = useRef<L.LayerGroup | null>(null);
 
+  const fieldOfViewAngle = cameraSettings.showAngles
+    ? getFieldOfViewAngle(
+        cameraSettings.focalLength,
+        cameraSettings.sensorType,
+        cameraSettings.aspectRatio,
+        cameraSettings.orientation,
+      )
+    : 0;
   // 地図の初期化
   useEffect(() => {
     if (!mapRef.current || mapInstanceRef.current) return;
@@ -424,12 +432,7 @@ const SimpleMap: React.FC<SimpleMapProps> = ({
 
         // 画角表示
         if (cameraSettings.showAngles && location.azimuthToSkytree) {
-          const angle = getFieldOfViewAngle(
-            cameraSettings.focalLength,
-            cameraSettings.sensorType,
-            cameraSettings.aspectRatio,
-            cameraSettings.orientation,
-          );
+          const angle = fieldOfViewAngle;
           const distance = location.distanceToSkytree
             ? location.distanceToSkytree
             : 50000; // meters (既にメートル単位)
@@ -546,6 +549,7 @@ const SimpleMap: React.FC<SimpleMapProps> = ({
     cameraSettings.sensorType,
     cameraSettings.aspectRatio,
     cameraSettings.orientation,
+    fieldOfViewAngle,
   ]);
 
   return (
@@ -746,6 +750,7 @@ const SimpleMap: React.FC<SimpleMapProps> = ({
                 }}
               ></div>
               <span>画角範囲 ({cameraSettings.focalLength}mm)</span>
+              <span>水平画角: {fieldOfViewAngle.toFixed(1)}°</span>
             </div>
           )}
         </div>
