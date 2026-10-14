@@ -144,6 +144,10 @@ const QueueManager: React.FC = () => {
   };
 
   const triggerBackgroundJob = async (jobId: string) => {
+    if (!confirm('このバックグラウンドジョブを実行しますか？')) {
+      return;
+    }
+
     try {
       const response = await authService.authenticatedFetch(
         `/api/admin/background-jobs/${jobId}/trigger`,

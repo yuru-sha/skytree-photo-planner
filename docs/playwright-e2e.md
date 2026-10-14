@@ -18,6 +18,11 @@ npm run test:e2e
 `tests/e2e/location-detail.spec.ts` covers UI and direct links, fixture-specific event details, map directions, calendar selection, and missing locations. Its event-navigation case selects the second distinct event and verifies the selected event ID and Home date, location, and event content. It stubs API and external HTTPS requests. A failed `/api/locations` response shows the location-load error instead of the not-found message.
 
 `tests/e2e/home-filters-camera.spec.ts` covers Home category and distance filters, ON/OFF reset and saved-filter restoration, the filtered empty state, date selection across two dates, and focal length, sensor, aspect-ratio, and orientation changes through the visible numeric horizontal field-of-view readout. One immutable date-indexed fixture collection feeds both the grouped monthly calendar and flat daily event mocks; API and external HTTPS requests are stubbed.
+`tests/e2e/admin-queue-settings.spec.ts` covers queue loading, populated and empty statistics, failed-job details, API errors, confirmed manual job triggers, and canceled or accepted failed-job cleanup. It also covers system-setting load, edit, reset, save, persisted mock values, save errors, and retry.
+
+Each test handles all API requests with a page-local route fixture. Unmatched requests return 404 and fail an assertion. Successful setting changes persist only in the in-memory fixture. These tests do not connect to a backend, database, or Redis.
+
+Run the browser-smoke suite with `npm run test:e2e`.
 
 The smoke suite also includes optional real-backend auth boundary probes, skipped unless `E2E_API_BASE_URL` points to a disposable backend. Never point that probe at production.
 
