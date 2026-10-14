@@ -17,13 +17,13 @@ type FixtureLocation = {
 
 type FixtureEvent = {
   id: string;
-  type: "diamond";
-  subType: "sunrise";
+  type: "diamond" | "pearl";
+  subType: "sunrise" | "rising";
   time: string;
   location: FixtureLocation;
   azimuth: number;
   elevation: number;
-  accuracy: "excellent";
+  accuracy: "excellent" | "good";
 };
 
 type WindowOpenCall = { url: string; target: string };
@@ -67,6 +67,17 @@ const fixtureEvent: FixtureEvent = {
   accuracy: "excellent",
 };
 
+const fixtureSecondEvent: FixtureEvent = {
+  id: "issue-107-pearl-rising-event",
+  type: "pearl",
+  subType: "rising",
+  time: `${fixtureDate}T07:30:00.000Z`,
+  location: fixtureLocation,
+  azimuth: 45,
+  elevation: 3,
+  accuracy: "good",
+};
+
 async function blockExternalRequests(page: Page) {
   await page.route("https://**/*", (route) => {
     const url = new URL(route.request().url());
@@ -89,7 +100,10 @@ async function mockApi(page: Page, locations: FixtureLocation[] = [fixtureLocati
     }
     const dayMatch = pathname.match(/^\/api\/events\/(\d{4}-\d{2}-\d{2})$/);
     if (dayMatch) {
-      const events = dayMatch[1] === fixtureDate ? [fixtureEvent] : [];
+      const events =
+        dayMatch[1] === fixtureDate
+          ? [fixtureEvent, fixtureSecondEvent]
+          : [];
       await route.fulfill({ json: { events } });
       return;
     }
@@ -106,8 +120,8 @@ async function mockApi(page: Page, locations: FixtureLocation[] = [fixtureLocati
           events: isFixtureMonth
             ? [{
                 date: `${fixtureDate}T00:00:00.000Z`,
-                type: "diamond",
-                events: [fixtureEvent],
+                type: "both",
+                events: [fixtureEvent, fixtureSecondEvent],
               }]
             : [],
         },
@@ -131,7 +145,10 @@ async function expectLocationDetail(page: Page) {
   await expect(page.getByRole("heading", { name: fixtureLocation.name })).toBeVisible();
   await expect(page.getByText(/ダイヤモンドスカイツリー\s*\(昇る\)/)).toBeVisible();
   const [year, month, day] = fixtureDate.split("-").map(Number);
-  await expect(page.getByText(`${year}年${month}月${day}日`, { exact: false })).toBeVisible();
+  const eventDates = page.getByText(`${year}年${month}月${day}日`, { exact: false });
+  await expect(eventDates).toHaveCount(2);
+  await expect(eventDates.first()).toBeVisible();
+  await expect(eventDates.nth(1)).toBeVisible();
 }
 
 test("opens location detail from favorites and displays its exact future event", async ({ page }) => {
@@ -182,16 +199,22 @@ test("event detail navigates to the selected fixture date and event", async ({ p
   await mockApi(page);
   await page.goto(`/location/${fixtureLocation.id}`);
   await expect(page.getByRole("heading", { name: fixtureLocation.name })).toBeVisible();
-  await page.getByRole("button", { name: "詳細を見る" }).click();
+  await page.getByRole("button", { name: "詳細を見る" }).nth(1).click();
   await expect(page).toHaveURL(new RegExp(`/\\?date=${fixtureDate}$`));
   const navigationState = await page.evaluate(() => window.history.state?.usr);
   expect(navigationState).toMatchObject({
     selectedLocationId: fixtureLocation.id,
-    selectedEventId: fixtureEvent.id,
+    selectedEventId: fixtureSecondEvent.id,
   });
   await expect(page.getByRole("heading", { name: "スカイツリー撮影プランナー" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: `${eventDate.getFullYear()}年${eventDate.getMonth() + 1}月15日の撮影情報`,
+    }),
+  ).toBeVisible();
   await expect(page.getByText(fixtureLocation.name, { exact: true }).first()).toBeVisible();
   await expect(page.getByText("地図表示中", { exact: true })).toBeVisible();
+  await expect(page.getByText("昇るパールスカイツリー", { exact: true })).toBeVisible();
   await expect(page.getByText("昇るダイヤモンドスカイツリー", { exact: true })).toBeVisible();
   await expect(page.getByText("ダイヤモンドスカイツリー", { exact: true }).first()).toBeVisible();
 });
