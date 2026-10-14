@@ -176,12 +176,9 @@ const LocationDetailPage: React.FC = () => {
                 targetDate.getMonth() + 1,
               );
 
-              // この地点のイベントのみフィルタリング（FujiEvent の型のみ）
-              const locationEvents = calendarResponse.events.filter(
-                (event) =>
-                  "location" in event &&
-                  (event as any).location.id === parsedLocationId,
-              ) as unknown as FujiEvent[];
+              const locationEvents = calendarResponse.events
+                .flatMap((day) => day.events)
+                .filter((event) => event.location.id === parsedLocationId);
 
               events.push(...locationEvents);
             } catch (error) {

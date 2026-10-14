@@ -15,6 +15,8 @@ npm run test:e2e
 
 `npm run test:e2e:ui` opens the smoke suite in Playwright UI. The smoke config starts only Vite on port 5173 and keeps the existing mocks and optional API boundary test behavior.
 
+`tests/e2e/location-detail.spec.ts` covers UI and direct links, fixture-specific event details, map directions, calendar selection, and missing locations. It stubs API and external HTTPS requests. A failed `/api/locations` response shows the location-load error instead of the not-found message.
+
 The smoke suite also includes optional real-backend auth boundary probes, skipped unless `E2E_API_BASE_URL` points to a disposable backend. Never point that probe at production.
 
 ## Run real backend integration tests
