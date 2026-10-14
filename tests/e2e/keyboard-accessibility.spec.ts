@@ -87,7 +87,7 @@ test("favorites import dialog moves focus inside when opened", async ({ page }) 
   await opener.focus();
   await page.keyboard.press("Space");
 
-  const jsonInput = page.getByRole("textbox", { name: "JSON 形式のデータを貼り付けてください" });
+  const jsonInput = page.getByPlaceholder("JSON 形式のデータを貼り付けてください");
   await expect(jsonInput).toBeFocused({ timeout: 1_000 });
 });
 
