@@ -47,6 +47,7 @@ const Layout: React.FC = () => {
                 <Link
                   key={item.path}
                   to={item.path}
+                  aria-label={item.label}
                   className={`
                     flex items-center space-x-2 px-3 py-2 rounded-md font-medium text-sm
                     transition-all duration-200
