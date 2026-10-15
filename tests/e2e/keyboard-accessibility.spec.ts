@@ -1,6 +1,5 @@
 import { expect, test } from "playwright/test";
 
-const navigationIssue = "https://github.com/yuru-sha/skytree-photo-planner/issues/118";
 const loginAnnouncementIssue = "https://github.com/yuru-sha/skytree-photo-planner/issues/119";
 const dialogIssue = "https://github.com/yuru-sha/skytree-photo-planner/issues/120";
 test.use({ viewport: { width: 375, height: 812 } });
@@ -25,11 +24,13 @@ test.beforeEach(async ({ page }) => {
   });
 });
 
-test("mobile public navigation exposes accessible link names", async ({ page }) => {
-  test.fail(true, `Known mobile navigation accessible-name defect: ${navigationIssue}`);
+test("public navigation exposes accessible link names at mobile and desktop widths", async ({ page }) => {
   await page.goto("/");
-  for (const name of ["ホーム", "地図検索", "お気に入り", "管理"]) {
-    await expect(page.getByRole("link", { name, exact: true })).toBeVisible({ timeout: 1_000 });
+  for (const width of [375, 1280]) {
+    await page.setViewportSize({ width, height: 812 });
+    for (const name of ["ホーム", "地図検索", "お気に入り", "管理"]) {
+      await expect(page.getByRole("link", { name, exact: true })).toBeVisible({ timeout: 1_000 });
+    }
   }
 });
 
