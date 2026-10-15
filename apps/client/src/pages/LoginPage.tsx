@@ -9,7 +9,6 @@ const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 既にログイン済みの場合は管理画面にリダイレクト
   useEffect(() => {
     const checkAuth = async () => {
       const authState = authService.getAuthState();
@@ -39,7 +38,7 @@ const LoginPage: React.FC = () => {
       } else {
         setError(result.message || "ログインに失敗しました");
       }
-    } catch (err) {
+    } catch {
       setError("ログイン処理中にエラーが発生しました");
     } finally {
       setLoading(false);
@@ -60,7 +59,10 @@ const LoginPage: React.FC = () => {
 
         <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
           {error && (
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
+            <div
+              role="alert"
+              className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded"
+            >
               {error}
             </div>
           )}
