@@ -1,6 +1,5 @@
 import { expect, test } from "playwright/test";
 
-const loginAnnouncementIssue = "https://github.com/yuru-sha/skytree-photo-planner/issues/119";
 const dialogIssue = "https://github.com/yuru-sha/skytree-photo-planner/issues/120";
 test.use({ viewport: { width: 375, height: 812 } });
 
@@ -67,8 +66,9 @@ test("login form follows keyboard order and announces failed submission", async 
   await password.focus();
   await page.keyboard.press("Enter");
   await expect(page.getByText("認証に失敗しました")).toBeVisible();
-  test.fail(true, `Known login error announcement defect: ${loginAnnouncementIssue}`);
   await expect(page.getByRole("alert")).toHaveText("認証に失敗しました", { timeout: 1_000 });
+  await expect(page).toHaveURL(/\/admin\/login$/);
+  await expect(password).toBeFocused();
 });
 
 test("favorites import dialog exposes an accessible modal", async ({ page }) => {
