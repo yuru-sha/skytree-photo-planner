@@ -233,8 +233,8 @@ npm run build:packages  # 共有パッケージビルド
 
 # 品質チェック
 npm run typecheck       # TypeScript 型チェック（全パッケージ）
-npm run lint           # ESLint（全パッケージ）
-npm run lint:fix       # ESLint 自動修正
+npm run lint           # Oxlint（全パッケージ）
+npm run lint:fix       # Oxlint 自動修正
 
 # パッケージ管理
 npm run clean          # ビルド成果物と node_modules 削除
