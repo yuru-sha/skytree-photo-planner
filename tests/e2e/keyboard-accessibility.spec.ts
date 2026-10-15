@@ -1,6 +1,5 @@
 import { expect, test } from "playwright/test";
 
-const dialogIssue = "https://github.com/yuru-sha/skytree-photo-planner/issues/120";
 test.use({ viewport: { width: 375, height: 812 } });
 
 test.beforeEach(async ({ page }) => {
@@ -72,7 +71,6 @@ test("login form follows keyboard order and announces failed submission", async 
 });
 
 test("favorites import dialog exposes an accessible modal", async ({ page }) => {
-  test.fail(true, `Known import dialog semantics defect: ${dialogIssue}`);
   await page.goto("/favorites");
   const opener = page.getByRole("button", { name: "インポート", exact: true });
   await opener.focus();
@@ -82,7 +80,6 @@ test("favorites import dialog exposes an accessible modal", async ({ page }) => 
 });
 
 test("favorites import dialog moves focus inside when opened", async ({ page }) => {
-  test.fail(true, `Known import dialog focus defect: ${dialogIssue}`);
   await page.goto("/favorites");
   const opener = page.getByRole("button", { name: "インポート", exact: true });
   await opener.focus();
@@ -93,7 +90,6 @@ test("favorites import dialog moves focus inside when opened", async ({ page }) 
 });
 
 test("favorites import dialog closes on Escape", async ({ page }) => {
-  test.fail(true, `Known import dialog Escape defect: ${dialogIssue}`);
   await page.goto("/favorites");
   const opener = page.getByRole("button", { name: "インポート", exact: true });
   await opener.focus();
@@ -106,7 +102,6 @@ test("favorites import dialog closes on Escape", async ({ page }) => {
 });
 
 test("favorites import dialog restores focus after cancel", async ({ page }) => {
-  test.fail(true, `Known import dialog focus-return defect: ${dialogIssue}`);
   await page.goto("/favorites");
   const opener = page.getByRole("button", { name: "インポート", exact: true });
   await opener.focus();
@@ -128,4 +123,36 @@ test("favorites import dialog cancel button closes the dialog", async ({ page })
   await expect(heading).toBeVisible();
   await page.getByRole("button", { name: "キャンセル" }).click();
   await expect(heading).toBeHidden();
+});
+
+test("favorites import dialog traps Tab at both ends and names the close button", async ({ page }) => {
+  await page.goto("/favorites");
+  const opener = page.getByRole("button", { name: "インポート", exact: true });
+  await opener.focus();
+  await page.keyboard.press("Space");
+
+  const dialog = page.getByRole("dialog", { name: "データインポート" });
+  const close = dialog.getByRole("button", { name: "閉じる" });
+  const importButton = dialog.getByRole("button", { name: "インポート" });
+  await dialog.getByPlaceholder("JSON 形式のデータを貼り付けてください").fill("{}");
+
+  await expect(close).toBeVisible();
+  await close.focus();
+  await page.keyboard.press("Shift+Tab");
+  await expect(importButton).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(close).toBeFocused();
+});
+
+test("favorites import dialog closes from the named close button and restores focus", async ({ page }) => {
+  await page.goto("/favorites");
+  const opener = page.getByRole("button", { name: "インポート", exact: true });
+  await opener.focus();
+  await page.keyboard.press("Space");
+
+  const dialog = page.getByRole("dialog", { name: "データインポート" });
+  await dialog.getByRole("button", { name: "閉じる" }).click();
+
+  await expect(dialog).toBeHidden();
+  await expect(opener).toBeFocused();
 });
