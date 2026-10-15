@@ -211,8 +211,8 @@ npm run build:packages  # Shared packages build
 
 # Quality checks
 npm run typecheck       # TypeScript type checking (all packages)
-npm run lint           # ESLint (all packages)
-npm run lint:fix       # ESLint auto-fix
+npm run lint           # Oxlint (all packages)
+npm run lint:fix       # Oxlint auto-fix
 
 # Package management
 npm run clean          # Clean build artifacts and node_modules

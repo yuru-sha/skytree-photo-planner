@@ -115,7 +115,7 @@ npm run dev  # フロントエンド + バックエンド + ワーカー同時�
 
 # v0.1.0 品質チェック（タスク完了時必須）
 npm run typecheck  # TypeScript 型チェック
-npm run lint:fix   # ESLint 自動修正
+npm run lint:fix   # Oxlint 自動修正
 npm run build     # プロダクションビルド確認
 
 # アクセス
@@ -140,7 +140,7 @@ npm run build     # プロダクションビルド確認
 3. **開発**: TDD 推奨、厳密な型安全性維持
 4. **品質チェック**: 必須実行
    - `npm run typecheck` - TypeScript 型チェック
-   - `npm run lint:fix` - ESLint 自動修正
+   - `npm run lint:fix` - Oxlint 自動修正
    - `npm run build` - ビルド確認
 5. **テスト**: `npm test` でテスト実行
 6. **プルリクエスト**: 詳細な説明とテストケース
