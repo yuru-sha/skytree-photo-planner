@@ -1,4 +1,5 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
+import { Dialog, DialogPanel, DialogTitle } from "@headlessui/react";
 import { useNavigate } from "react-router-dom";
 import { useFavorites } from "../hooks/useFavorites";
 import { timeUtils } from "@skytree-photo-planner/utils";
@@ -27,6 +28,7 @@ const FavoritesPage: React.FC = () => {
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [importData, setImportData] = useState("");
+  const importTextareaRef = useRef<HTMLTextAreaElement>(null);
   const [locationAddresses, setLocationAddresses] = useState<Map<number, string>>(new Map());
 
   // 過去のイベントを取得
@@ -560,73 +562,80 @@ const FavoritesPage: React.FC = () => {
         </div>
 
         {/* インポートダイアログ */}
-        {showImportDialog && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-            <div className="bg-white rounded-lg w-full max-w-2xl max-h-screen overflow-hidden">
-              <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                <h3 className="text-lg font-semibold text-gray-900">データインポート</h3>
-                <button
-                  onClick={() => setShowImportDialog(false)}
-                  className="text-gray-400 hover:text-gray-600 transition-colors"
-                >
-                  <Icon name="x" size={20} />
-                </button>
+        <Dialog
+          open={showImportDialog}
+          onClose={setShowImportDialog}
+          initialFocus={importTextareaRef}
+          className="fixed inset-0 z-50 flex items-center justify-center p-4"
+        >
+          <div className="fixed inset-0 bg-black bg-opacity-50" aria-hidden="true" />
+          <DialogPanel className="relative bg-white rounded-lg w-full max-w-2xl max-h-screen overflow-hidden">
+            <div className="flex items-center justify-between p-6 border-b border-gray-200">
+              <DialogTitle as="h3" className="text-lg font-semibold text-gray-900">データインポート</DialogTitle>
+              <button
+                type="button"
+                aria-label="閉じる"
+                onClick={() => setShowImportDialog(false)}
+                className="text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                <Icon name="x" size={20} />
+              </button>
+            </div>
+
+            <div className="p-6 max-h-96 overflow-y-auto">
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ファイルから読み込み
+                </label>
+                <input
+                  type="file"
+                  accept=".json"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onload = (event) => {
+                        setImportData(event.target?.result as string);
+                      };
+                      reader.readAsText(file);
+                    }
+                  }}
+                />
               </div>
-              
-              <div className="p-6 max-h-96 overflow-y-auto">
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    ファイルから読み込み
-                  </label>
-                  <input
-                    type="file"
-                    accept=".json"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500"
-                    onChange={(e) => {
-                      const file = e.target.files?.[0];
-                      if (file) {
-                        const reader = new FileReader();
-                        reader.onload = (event) => {
-                          setImportData(event.target?.result as string);
-                        };
-                        reader.readAsText(file);
-                      }
-                    }}
-                  />
-                </div>
-                
-                <div className="mb-6">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    または直接貼り付け
-                  </label>
-                  <textarea
-                    value={importData}
-                    onChange={(e) => setImportData(e.target.value)}
-                    placeholder="JSON 形式のデータを貼り付けてください"
-                    rows={10}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm resize-vertical"
-                  />
-                </div>
-              </div>
-              
-              <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
-                <button
-                  onClick={() => setShowImportDialog(false)}
-                  className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
-                >
-                  キャンセル
-                </button>
-                <button
-                  onClick={handleImport}
-                  disabled={!importData.trim()}
-                  className="px-4 py-2 text-sm bg-green-600 text-white hover:bg-green-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  インポート
-                </button>
+
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  または直接貼り付け
+                </label>
+                <textarea
+                  ref={importTextareaRef}
+                  value={importData}
+                  onChange={(e) => setImportData(e.target.value)}
+                  placeholder="JSON 形式のデータを貼り付けてください"
+                  rows={10}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 font-mono text-sm resize-vertical"
+                />
               </div>
             </div>
-          </div>
-        )}
+
+            <div className="flex justify-end gap-3 p-6 border-t border-gray-200 bg-gray-50">
+              <button
+                onClick={() => setShowImportDialog(false)}
+                className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800 hover:bg-gray-100 rounded-md transition-colors"
+              >
+                キャンセル
+              </button>
+              <button
+                onClick={handleImport}
+                disabled={!importData.trim()}
+                className="px-4 py-2 text-sm bg-green-600 text-white hover:bg-green-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                インポート
+              </button>
+            </div>
+          </DialogPanel>
+        </Dialog>
       </div>
     </div>
   );

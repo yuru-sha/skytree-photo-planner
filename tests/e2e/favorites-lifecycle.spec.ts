@@ -255,7 +255,7 @@ test("exports and imports JSON, and malformed JSON leaves favorites unchanged", 
   await page.getByRole("button", { name: "インポート", exact: true }).click();
   await page.getByRole("textbox", { name: "JSON 形式のデータを貼り付けてください" }).fill("not valid JSON");
   await page.getByRole("button", { name: "インポート", exact: true }).last().click();
-  await expect(page.getByRole("heading", { name: fixtureLocation.name })).toBeVisible();
+  await expect(page.locator("h3").filter({ hasText: fixtureLocation.name })).toBeVisible();
   await expect(page.getByRole("heading", { name: "データインポート" })).toHaveCount(1);
   await expect(
     page.evaluate((key) => localStorage.getItem(key), favoritesKey),
