@@ -52,6 +52,13 @@ Root scripts are defined in `package.json`; workspace-specific scripts are avail
 - Keep server work asynchronous using the existing Promise-based service APIs and Redis/BullMQ path where applicable. Client feature state and request lifecycle generally live in hooks; follow the existing hook/service boundary.
 - Preserve authentication, validation, rate-limit, and CSRF boundaries when changing APIs.
 
+## Code, Tests, Commits, and Comments
+
+- Code should make **how** the behavior is implemented clear.
+- Tests should make **what** behavior is expected clear.
+- Commit messages should explain **why** the change is needed.
+- Comments should explain **why not** an apparently reasonable alternative was chosen, including relevant constraints or non-obvious intent. Do not use comments to paraphrase the code's behavior.
+
 ## Important Files
 
 - `package.json`: workspace definitions and authoritative root commands.
