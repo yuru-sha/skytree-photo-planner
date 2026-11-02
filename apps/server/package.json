@@ -48,7 +48,7 @@
     "@types/cors": "^2.8.16",
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
-    "@types/node": "^26.6.4",
+    "@types/node": "^26.6.6",
     "tsconfig-paths": "^4.2.0",
     "@prisma/adapter-pg": "7.10.0",
     "dotenv": "^17.2.3"
