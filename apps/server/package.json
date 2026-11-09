@@ -50,7 +50,7 @@
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^26.6.6",
     "tsconfig-paths": "^4.2.0",
-    "@prisma/adapter-pg": "7.10.0",
+    "@prisma/adapter-pg": "7.10.1",
     "dotenv": "^18.0.9"
   },
   "devDependencies": {
