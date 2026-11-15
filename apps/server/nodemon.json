@@ -6,5 +6,5 @@
   "ignore": [
     "src/**/*.spec.ts"
   ],
-  "exec": "ts-node-esm --project tsconfig.json src/server.ts"
+  "exec": "tsx --tsconfig tsconfig.json src/server.ts"
 }

@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "typecheck": "../../node_modules/@typescript/native/bin/tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "lint": "oxlint src",
     "lint:fix": "oxlint --fix src",
     "clean": "rm -rf dist"
@@ -32,7 +32,6 @@
     "postcss": "^8.5.6",
     "tailwindcss": "^4.3.3",
     "terser": "^5.43.1",
-    "typescript": "^5.9.3",
     "vite": "^8.3.3",
     "@tailwindcss/postcss": "^4.3.3"
   }

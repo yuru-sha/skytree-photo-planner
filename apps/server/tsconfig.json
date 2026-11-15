@@ -22,11 +22,6 @@
     "strictNullChecks": false,
     "moduleResolution": "NodeNext"
   },
-  "ts-node": {
-    "esm": true,
-    "transpileOnly": true,
-    "files": true
-  },
   "include": [
     "src/**/*"
   ],

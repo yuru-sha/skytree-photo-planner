@@ -5,13 +5,10 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "../../node_modules/@typescript/native/bin/tsc",
-    "dev": "../../node_modules/@typescript/native/bin/tsc --watch",
+    "build": "tsc",
+    "dev": "tsc --watch",
     "clean": "rm -rf dist",
-    "typecheck": "../../node_modules/@typescript/native/bin/tsc --noEmit"
-  },
-  "devDependencies": {
-    "typescript": "^5.9.3"
+    "typecheck": "tsc --noEmit"
   },
   "files": [
     "dist"

@@ -4,9 +4,13 @@ module.exports = {
   testMatch: ["<rootDir>/tests/**/*.test.cjs"],
   transform: {
     "^.+\\.tsx?$": [
-      "ts-jest",
+      "@swc/jest",
       {
-        tsconfig: "<rootDir>/tsconfig.test.json",
+        jsc: {
+          parser: { syntax: "typescript", tsx: true },
+          target: "es2020",
+        },
+        module: { type: "commonjs" },
       },
     ],
   },
