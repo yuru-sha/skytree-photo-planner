@@ -24,8 +24,6 @@ jobs:
       - name: Install dependencies
         run: npm ci
       
-      - name: Install Graphviz
-        run: sudo apt-get update && sudo apt-get install -y graphviz
       
       - name: Check circular dependencies
         run: npm run check-circular
@@ -39,14 +37,5 @@ jobs:
         if: always()
         with:
           name: dependency-graph
-          path: dependency-graph.svg
+          path: dependency-graph.json
           retention-days: 30
-      
-      - name: Fail on circular dependencies
-        run: |
-          if npm run check-circular | grep -q "Circular dependency"; then
-            echo "❌ Circular dependencies detected!"
-            exit 1
-          else
-            echo "✅ No circular dependencies found"
-          fi
